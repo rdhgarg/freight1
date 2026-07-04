@@ -98,7 +98,7 @@ function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
                 <XAxis dataKey="month" stroke="currentColor" fontSize={11} />
                 <YAxis stroke="currentColor" fontSize={11} tickFormatter={(v) => `${v / 1000}k`} />
-                <Tooltip formatter={(v: number) => inr(v)} contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 8 }} />
+                <Tooltip formatter={(v) => inr(Number(v))} contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 8 }} />
                 <Area type="monotone" dataKey="revenue" stroke="oklch(0.55 0.18 255)" strokeWidth={2} fill="url(#rev)" />
                 <Area type="monotone" dataKey="expenses" stroke="oklch(0.6 0.2 25)" strokeWidth={2} fill="url(#exp)" />
               </AreaChart>
@@ -173,7 +173,7 @@ function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} horizontal={false} />
                 <XAxis type="number" stroke="currentColor" fontSize={10} tickFormatter={(v) => `${v / 1000}k`} />
                 <YAxis type="category" dataKey="name" stroke="currentColor" fontSize={10} width={90} />
-                <Tooltip formatter={(v: number) => inr(v)} contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 8 }} />
+                <Tooltip formatter={(v) => inr(Number(v))} contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 8 }} />
                 <Bar dataKey="total" fill="oklch(0.55 0.18 255)" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
