@@ -17,7 +17,7 @@ export const customerSchema = z.object({
   phone: z.string().trim().min(6, "Phone required").max(20),
   address: z.string().trim().min(4, "Address required").max(500),
   paymentTerms: z.string().min(1, "Required"),
-  creditLimit: z.coerce.number().min(0, "Must be >= 0"),
+  creditLimit: z.number({ error: "Must be a number" }).min(0, "Must be >= 0"),
   status: z.enum(["Active", "Inactive"]),
 });
 export type CustomerForm = z.infer<typeof customerSchema>;
@@ -83,7 +83,7 @@ export function CustomerFormFields({
           />
         </Field>
         <Field label="Credit limit (₹)" error={errors.creditLimit?.message}>
-          <Input type="number" min={0} step={1000} {...register("creditLimit")} />
+          <Input type="number" min={0} step={1000} {...register("creditLimit", { valueAsNumber: true })} />
         </Field>
         <Field label="Status" error={errors.status?.message}>
           <Controller

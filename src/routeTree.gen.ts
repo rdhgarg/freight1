@@ -15,6 +15,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AuthForgotRouteImport } from './routes/auth.forgot'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppProfileIndexRouteImport } from './routes/_app.profile.index'
+import { Route as AppCustomersIndexRouteImport } from './routes/_app.customers.index'
+import { Route as AppProfileChangePasswordRouteImport } from './routes/_app.profile.change-password'
+import { Route as AppCustomersNewRouteImport } from './routes/_app.customers.new'
+import { Route as AppCustomersIdIndexRouteImport } from './routes/_app.customers.$id.index'
+import { Route as AppCustomersIdEditRouteImport } from './routes/_app.customers.$id.edit'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -45,6 +51,37 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProfileIndexRoute = AppProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCustomersIndexRoute = AppCustomersIndexRouteImport.update({
+  id: '/customers/',
+  path: '/customers/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileChangePasswordRoute =
+  AppProfileChangePasswordRouteImport.update({
+    id: '/profile/change-password',
+    path: '/profile/change-password',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppCustomersNewRoute = AppCustomersNewRouteImport.update({
+  id: '/customers/new',
+  path: '/customers/new',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCustomersIdIndexRoute = AppCustomersIdIndexRouteImport.update({
+  id: '/customers/$id/',
+  path: '/customers/$id/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCustomersIdEditRoute = AppCustomersIdEditRouteImport.update({
+  id: '/customers/$id/edit',
+  path: '/customers/$id/edit',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -52,6 +89,12 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AppDashboardRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
+  '/customers/new': typeof AppCustomersNewRoute
+  '/profile/change-password': typeof AppProfileChangePasswordRoute
+  '/customers/': typeof AppCustomersIndexRoute
+  '/profile/': typeof AppProfileIndexRoute
+  '/customers/$id/edit': typeof AppCustomersIdEditRoute
+  '/customers/$id/': typeof AppCustomersIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -59,6 +102,12 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AppDashboardRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
+  '/customers/new': typeof AppCustomersNewRoute
+  '/profile/change-password': typeof AppProfileChangePasswordRoute
+  '/customers': typeof AppCustomersIndexRoute
+  '/profile': typeof AppProfileIndexRoute
+  '/customers/$id/edit': typeof AppCustomersIdEditRoute
+  '/customers/$id': typeof AppCustomersIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,12 +117,40 @@ export interface FileRoutesById {
   '/_app/dashboard': typeof AppDashboardRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
+  '/_app/customers/new': typeof AppCustomersNewRoute
+  '/_app/profile/change-password': typeof AppProfileChangePasswordRoute
+  '/_app/customers/': typeof AppCustomersIndexRoute
+  '/_app/profile/': typeof AppProfileIndexRoute
+  '/_app/customers/$id/edit': typeof AppCustomersIdEditRoute
+  '/_app/customers/$id/': typeof AppCustomersIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/auth/forgot' | '/auth/reset'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/auth/forgot'
+    | '/auth/reset'
+    | '/customers/new'
+    | '/profile/change-password'
+    | '/customers/'
+    | '/profile/'
+    | '/customers/$id/edit'
+    | '/customers/$id/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/auth/forgot' | '/auth/reset'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/auth/forgot'
+    | '/auth/reset'
+    | '/customers/new'
+    | '/profile/change-password'
+    | '/customers'
+    | '/profile'
+    | '/customers/$id/edit'
+    | '/customers/$id'
   id:
     | '__root__'
     | '/'
@@ -82,6 +159,12 @@ export interface FileRouteTypes {
     | '/_app/dashboard'
     | '/auth/forgot'
     | '/auth/reset'
+    | '/_app/customers/new'
+    | '/_app/profile/change-password'
+    | '/_app/customers/'
+    | '/_app/profile/'
+    | '/_app/customers/$id/edit'
+    | '/_app/customers/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -134,15 +217,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/profile/': {
+      id: '/_app/profile/'
+      path: '/profile'
+      fullPath: '/profile/'
+      preLoaderRoute: typeof AppProfileIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/customers/': {
+      id: '/_app/customers/'
+      path: '/customers'
+      fullPath: '/customers/'
+      preLoaderRoute: typeof AppCustomersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/profile/change-password': {
+      id: '/_app/profile/change-password'
+      path: '/profile/change-password'
+      fullPath: '/profile/change-password'
+      preLoaderRoute: typeof AppProfileChangePasswordRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/customers/new': {
+      id: '/_app/customers/new'
+      path: '/customers/new'
+      fullPath: '/customers/new'
+      preLoaderRoute: typeof AppCustomersNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/customers/$id/': {
+      id: '/_app/customers/$id/'
+      path: '/customers/$id'
+      fullPath: '/customers/$id/'
+      preLoaderRoute: typeof AppCustomersIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/customers/$id/edit': {
+      id: '/_app/customers/$id/edit'
+      path: '/customers/$id/edit'
+      fullPath: '/customers/$id/edit'
+      preLoaderRoute: typeof AppCustomersIdEditRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
+  AppCustomersNewRoute: typeof AppCustomersNewRoute
+  AppProfileChangePasswordRoute: typeof AppProfileChangePasswordRoute
+  AppCustomersIndexRoute: typeof AppCustomersIndexRoute
+  AppProfileIndexRoute: typeof AppProfileIndexRoute
+  AppCustomersIdEditRoute: typeof AppCustomersIdEditRoute
+  AppCustomersIdIndexRoute: typeof AppCustomersIdIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
+  AppCustomersNewRoute: AppCustomersNewRoute,
+  AppProfileChangePasswordRoute: AppProfileChangePasswordRoute,
+  AppCustomersIndexRoute: AppCustomersIndexRoute,
+  AppProfileIndexRoute: AppProfileIndexRoute,
+  AppCustomersIdEditRoute: AppCustomersIdEditRoute,
+  AppCustomersIdIndexRoute: AppCustomersIdIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

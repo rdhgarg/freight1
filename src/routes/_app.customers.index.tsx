@@ -56,7 +56,7 @@ function CustomersList() {
         description={`${customers.length} customers · ${customers.filter((c) => c.status === "Active").length} active`}
         actions={
           <>
-            <Button variant="outline" size="sm" onClick={() => { csvDownload("customers.csv", filtered); toast.success("Exported"); }}>
+            <Button variant="outline" size="sm" onClick={() => { csvDownload("customers.csv", filtered as unknown as Record<string, unknown>[]); toast.success("Exported"); }}>
               <Download className="h-4 w-4 mr-1.5" /> Export
             </Button>
             <Button size="sm" onClick={() => navigate({ to: "/customers/new" })}>
