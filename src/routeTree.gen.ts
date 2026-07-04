@@ -14,9 +14,25 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AuthForgotRouteImport } from './routes/auth.forgot'
+import { Route as AppWorkOrdersRouteImport } from './routes/_app.work-orders'
+import { Route as AppTrucksRouteImport } from './routes/_app.trucks'
+import { Route as AppSuppliersRouteImport } from './routes/_app.suppliers'
+import { Route as AppShipmentsRouteImport } from './routes/_app.shipments'
+import { Route as AppReceiptsRouteImport } from './routes/_app.receipts'
+import { Route as AppPurchasesRouteImport } from './routes/_app.purchases'
+import { Route as AppOutstandingRouteImport } from './routes/_app.outstanding'
+import { Route as AppLedgersRouteImport } from './routes/_app.ledgers'
+import { Route as AppJournalRouteImport } from './routes/_app.journal'
+import { Route as AppInvoicesRouteImport } from './routes/_app.invoices'
+import { Route as AppExpensesRouteImport } from './routes/_app.expenses'
+import { Route as AppDriversRouteImport } from './routes/_app.drivers'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppSettingsIndexRouteImport } from './routes/_app.settings.index'
 import { Route as AppProfileIndexRouteImport } from './routes/_app.profile.index'
 import { Route as AppCustomersIndexRouteImport } from './routes/_app.customers.index'
+import { Route as AppSettingsUsersRouteImport } from './routes/_app.settings.users'
+import { Route as AppSettingsRolesRouteImport } from './routes/_app.settings.roles'
+import { Route as AppSettingsCompanyRouteImport } from './routes/_app.settings.company'
 import { Route as AppProfileChangePasswordRouteImport } from './routes/_app.profile.change-password'
 import { Route as AppCustomersNewRouteImport } from './routes/_app.customers.new'
 import { Route as AppCustomersIdIndexRouteImport } from './routes/_app.customers.$id.index'
@@ -46,9 +62,74 @@ const AuthForgotRoute = AuthForgotRouteImport.update({
   path: '/forgot',
   getParentRoute: () => AuthRoute,
 } as any)
+const AppWorkOrdersRoute = AppWorkOrdersRouteImport.update({
+  id: '/work-orders',
+  path: '/work-orders',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTrucksRoute = AppTrucksRouteImport.update({
+  id: '/trucks',
+  path: '/trucks',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSuppliersRoute = AppSuppliersRouteImport.update({
+  id: '/suppliers',
+  path: '/suppliers',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppShipmentsRoute = AppShipmentsRouteImport.update({
+  id: '/shipments',
+  path: '/shipments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReceiptsRoute = AppReceiptsRouteImport.update({
+  id: '/receipts',
+  path: '/receipts',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPurchasesRoute = AppPurchasesRouteImport.update({
+  id: '/purchases',
+  path: '/purchases',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOutstandingRoute = AppOutstandingRouteImport.update({
+  id: '/outstanding',
+  path: '/outstanding',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLedgersRoute = AppLedgersRouteImport.update({
+  id: '/ledgers',
+  path: '/ledgers',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppJournalRoute = AppJournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInvoicesRoute = AppInvoicesRouteImport.update({
+  id: '/invoices',
+  path: '/invoices',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppExpensesRoute = AppExpensesRouteImport.update({
+  id: '/expenses',
+  path: '/expenses',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDriversRoute = AppDriversRouteImport.update({
+  id: '/drivers',
+  path: '/drivers',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProfileIndexRoute = AppProfileIndexRouteImport.update({
@@ -59,6 +140,21 @@ const AppProfileIndexRoute = AppProfileIndexRouteImport.update({
 const AppCustomersIndexRoute = AppCustomersIndexRouteImport.update({
   id: '/customers/',
   path: '/customers/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsUsersRoute = AppSettingsUsersRouteImport.update({
+  id: '/settings/users',
+  path: '/settings/users',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRolesRoute = AppSettingsRolesRouteImport.update({
+  id: '/settings/roles',
+  path: '/settings/roles',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsCompanyRoute = AppSettingsCompanyRouteImport.update({
+  id: '/settings/company',
+  path: '/settings/company',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProfileChangePasswordRoute =
@@ -87,12 +183,28 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
+  '/drivers': typeof AppDriversRoute
+  '/expenses': typeof AppExpensesRoute
+  '/invoices': typeof AppInvoicesRoute
+  '/journal': typeof AppJournalRoute
+  '/ledgers': typeof AppLedgersRoute
+  '/outstanding': typeof AppOutstandingRoute
+  '/purchases': typeof AppPurchasesRoute
+  '/receipts': typeof AppReceiptsRoute
+  '/shipments': typeof AppShipmentsRoute
+  '/suppliers': typeof AppSuppliersRoute
+  '/trucks': typeof AppTrucksRoute
+  '/work-orders': typeof AppWorkOrdersRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
   '/customers/new': typeof AppCustomersNewRoute
   '/profile/change-password': typeof AppProfileChangePasswordRoute
+  '/settings/company': typeof AppSettingsCompanyRoute
+  '/settings/roles': typeof AppSettingsRolesRoute
+  '/settings/users': typeof AppSettingsUsersRoute
   '/customers/': typeof AppCustomersIndexRoute
   '/profile/': typeof AppProfileIndexRoute
+  '/settings/': typeof AppSettingsIndexRoute
   '/customers/$id/edit': typeof AppCustomersIdEditRoute
   '/customers/$id/': typeof AppCustomersIdIndexRoute
 }
@@ -100,12 +212,28 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
+  '/drivers': typeof AppDriversRoute
+  '/expenses': typeof AppExpensesRoute
+  '/invoices': typeof AppInvoicesRoute
+  '/journal': typeof AppJournalRoute
+  '/ledgers': typeof AppLedgersRoute
+  '/outstanding': typeof AppOutstandingRoute
+  '/purchases': typeof AppPurchasesRoute
+  '/receipts': typeof AppReceiptsRoute
+  '/shipments': typeof AppShipmentsRoute
+  '/suppliers': typeof AppSuppliersRoute
+  '/trucks': typeof AppTrucksRoute
+  '/work-orders': typeof AppWorkOrdersRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
   '/customers/new': typeof AppCustomersNewRoute
   '/profile/change-password': typeof AppProfileChangePasswordRoute
+  '/settings/company': typeof AppSettingsCompanyRoute
+  '/settings/roles': typeof AppSettingsRolesRoute
+  '/settings/users': typeof AppSettingsUsersRoute
   '/customers': typeof AppCustomersIndexRoute
   '/profile': typeof AppProfileIndexRoute
+  '/settings': typeof AppSettingsIndexRoute
   '/customers/$id/edit': typeof AppCustomersIdEditRoute
   '/customers/$id': typeof AppCustomersIdIndexRoute
 }
@@ -115,12 +243,28 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/drivers': typeof AppDriversRoute
+  '/_app/expenses': typeof AppExpensesRoute
+  '/_app/invoices': typeof AppInvoicesRoute
+  '/_app/journal': typeof AppJournalRoute
+  '/_app/ledgers': typeof AppLedgersRoute
+  '/_app/outstanding': typeof AppOutstandingRoute
+  '/_app/purchases': typeof AppPurchasesRoute
+  '/_app/receipts': typeof AppReceiptsRoute
+  '/_app/shipments': typeof AppShipmentsRoute
+  '/_app/suppliers': typeof AppSuppliersRoute
+  '/_app/trucks': typeof AppTrucksRoute
+  '/_app/work-orders': typeof AppWorkOrdersRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
   '/_app/customers/new': typeof AppCustomersNewRoute
   '/_app/profile/change-password': typeof AppProfileChangePasswordRoute
+  '/_app/settings/company': typeof AppSettingsCompanyRoute
+  '/_app/settings/roles': typeof AppSettingsRolesRoute
+  '/_app/settings/users': typeof AppSettingsUsersRoute
   '/_app/customers/': typeof AppCustomersIndexRoute
   '/_app/profile/': typeof AppProfileIndexRoute
+  '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/customers/$id/edit': typeof AppCustomersIdEditRoute
   '/_app/customers/$id/': typeof AppCustomersIdIndexRoute
 }
@@ -130,12 +274,28 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/drivers'
+    | '/expenses'
+    | '/invoices'
+    | '/journal'
+    | '/ledgers'
+    | '/outstanding'
+    | '/purchases'
+    | '/receipts'
+    | '/shipments'
+    | '/suppliers'
+    | '/trucks'
+    | '/work-orders'
     | '/auth/forgot'
     | '/auth/reset'
     | '/customers/new'
     | '/profile/change-password'
+    | '/settings/company'
+    | '/settings/roles'
+    | '/settings/users'
     | '/customers/'
     | '/profile/'
+    | '/settings/'
     | '/customers/$id/edit'
     | '/customers/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -143,12 +303,28 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/drivers'
+    | '/expenses'
+    | '/invoices'
+    | '/journal'
+    | '/ledgers'
+    | '/outstanding'
+    | '/purchases'
+    | '/receipts'
+    | '/shipments'
+    | '/suppliers'
+    | '/trucks'
+    | '/work-orders'
     | '/auth/forgot'
     | '/auth/reset'
     | '/customers/new'
     | '/profile/change-password'
+    | '/settings/company'
+    | '/settings/roles'
+    | '/settings/users'
     | '/customers'
     | '/profile'
+    | '/settings'
     | '/customers/$id/edit'
     | '/customers/$id'
   id:
@@ -157,12 +333,28 @@ export interface FileRouteTypes {
     | '/_app'
     | '/auth'
     | '/_app/dashboard'
+    | '/_app/drivers'
+    | '/_app/expenses'
+    | '/_app/invoices'
+    | '/_app/journal'
+    | '/_app/ledgers'
+    | '/_app/outstanding'
+    | '/_app/purchases'
+    | '/_app/receipts'
+    | '/_app/shipments'
+    | '/_app/suppliers'
+    | '/_app/trucks'
+    | '/_app/work-orders'
     | '/auth/forgot'
     | '/auth/reset'
     | '/_app/customers/new'
     | '/_app/profile/change-password'
+    | '/_app/settings/company'
+    | '/_app/settings/roles'
+    | '/_app/settings/users'
     | '/_app/customers/'
     | '/_app/profile/'
+    | '/_app/settings/'
     | '/_app/customers/$id/edit'
     | '/_app/customers/$id/'
   fileRoutesById: FileRoutesById
@@ -210,11 +402,102 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_app/work-orders': {
+      id: '/_app/work-orders'
+      path: '/work-orders'
+      fullPath: '/work-orders'
+      preLoaderRoute: typeof AppWorkOrdersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/trucks': {
+      id: '/_app/trucks'
+      path: '/trucks'
+      fullPath: '/trucks'
+      preLoaderRoute: typeof AppTrucksRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/suppliers': {
+      id: '/_app/suppliers'
+      path: '/suppliers'
+      fullPath: '/suppliers'
+      preLoaderRoute: typeof AppSuppliersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/shipments': {
+      id: '/_app/shipments'
+      path: '/shipments'
+      fullPath: '/shipments'
+      preLoaderRoute: typeof AppShipmentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/receipts': {
+      id: '/_app/receipts'
+      path: '/receipts'
+      fullPath: '/receipts'
+      preLoaderRoute: typeof AppReceiptsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/purchases': {
+      id: '/_app/purchases'
+      path: '/purchases'
+      fullPath: '/purchases'
+      preLoaderRoute: typeof AppPurchasesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/outstanding': {
+      id: '/_app/outstanding'
+      path: '/outstanding'
+      fullPath: '/outstanding'
+      preLoaderRoute: typeof AppOutstandingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ledgers': {
+      id: '/_app/ledgers'
+      path: '/ledgers'
+      fullPath: '/ledgers'
+      preLoaderRoute: typeof AppLedgersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/journal': {
+      id: '/_app/journal'
+      path: '/journal'
+      fullPath: '/journal'
+      preLoaderRoute: typeof AppJournalRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/invoices': {
+      id: '/_app/invoices'
+      path: '/invoices'
+      fullPath: '/invoices'
+      preLoaderRoute: typeof AppInvoicesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/expenses': {
+      id: '/_app/expenses'
+      path: '/expenses'
+      fullPath: '/expenses'
+      preLoaderRoute: typeof AppExpensesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/drivers': {
+      id: '/_app/drivers'
+      path: '/drivers'
+      fullPath: '/drivers'
+      preLoaderRoute: typeof AppDriversRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings/': {
+      id: '/_app/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof AppSettingsIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/profile/': {
@@ -229,6 +512,27 @@ declare module '@tanstack/react-router' {
       path: '/customers'
       fullPath: '/customers/'
       preLoaderRoute: typeof AppCustomersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings/users': {
+      id: '/_app/settings/users'
+      path: '/settings/users'
+      fullPath: '/settings/users'
+      preLoaderRoute: typeof AppSettingsUsersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings/roles': {
+      id: '/_app/settings/roles'
+      path: '/settings/roles'
+      fullPath: '/settings/roles'
+      preLoaderRoute: typeof AppSettingsRolesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings/company': {
+      id: '/_app/settings/company'
+      path: '/settings/company'
+      fullPath: '/settings/company'
+      preLoaderRoute: typeof AppSettingsCompanyRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/profile/change-password': {
@@ -264,20 +568,52 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
+  AppDriversRoute: typeof AppDriversRoute
+  AppExpensesRoute: typeof AppExpensesRoute
+  AppInvoicesRoute: typeof AppInvoicesRoute
+  AppJournalRoute: typeof AppJournalRoute
+  AppLedgersRoute: typeof AppLedgersRoute
+  AppOutstandingRoute: typeof AppOutstandingRoute
+  AppPurchasesRoute: typeof AppPurchasesRoute
+  AppReceiptsRoute: typeof AppReceiptsRoute
+  AppShipmentsRoute: typeof AppShipmentsRoute
+  AppSuppliersRoute: typeof AppSuppliersRoute
+  AppTrucksRoute: typeof AppTrucksRoute
+  AppWorkOrdersRoute: typeof AppWorkOrdersRoute
   AppCustomersNewRoute: typeof AppCustomersNewRoute
   AppProfileChangePasswordRoute: typeof AppProfileChangePasswordRoute
+  AppSettingsCompanyRoute: typeof AppSettingsCompanyRoute
+  AppSettingsRolesRoute: typeof AppSettingsRolesRoute
+  AppSettingsUsersRoute: typeof AppSettingsUsersRoute
   AppCustomersIndexRoute: typeof AppCustomersIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
+  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
   AppCustomersIdEditRoute: typeof AppCustomersIdEditRoute
   AppCustomersIdIndexRoute: typeof AppCustomersIdIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
+  AppDriversRoute: AppDriversRoute,
+  AppExpensesRoute: AppExpensesRoute,
+  AppInvoicesRoute: AppInvoicesRoute,
+  AppJournalRoute: AppJournalRoute,
+  AppLedgersRoute: AppLedgersRoute,
+  AppOutstandingRoute: AppOutstandingRoute,
+  AppPurchasesRoute: AppPurchasesRoute,
+  AppReceiptsRoute: AppReceiptsRoute,
+  AppShipmentsRoute: AppShipmentsRoute,
+  AppSuppliersRoute: AppSuppliersRoute,
+  AppTrucksRoute: AppTrucksRoute,
+  AppWorkOrdersRoute: AppWorkOrdersRoute,
   AppCustomersNewRoute: AppCustomersNewRoute,
   AppProfileChangePasswordRoute: AppProfileChangePasswordRoute,
+  AppSettingsCompanyRoute: AppSettingsCompanyRoute,
+  AppSettingsRolesRoute: AppSettingsRolesRoute,
+  AppSettingsUsersRoute: AppSettingsUsersRoute,
   AppCustomersIndexRoute: AppCustomersIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
+  AppSettingsIndexRoute: AppSettingsIndexRoute,
   AppCustomersIdEditRoute: AppCustomersIdEditRoute,
   AppCustomersIdIndexRoute: AppCustomersIdIndexRoute,
 }
