@@ -26,14 +26,14 @@ const groups: { label: string; items: Item[] }[] = [
       { title: "Work Orders", url: "/work-orders", icon: ClipboardList, module: "workOrders" },
       { title: "Shipments", url: "/shipments", icon: Container, module: "shipments" },
       { title: "Drivers", url: "/drivers", icon: UserCog, module: "drivers" },
-      { title: "Trucks", url: "/trucks", icon: Truck, module: "trucks" },
+      { title: "Fleet Management", url: "/fleet", icon: Truck, module: "fleet" },
     ],
   },
   {
     label: "Parties",
     items: [
       { title: "Customers", url: "/customers", icon: Users, module: "customers" },
-      { title: "Suppliers", url: "/suppliers", icon: Warehouse, module: "suppliers" },
+      { title: "Vendor Management", url: "/vendors", icon: Warehouse, module: "vendors" },
     ],
   },
   {

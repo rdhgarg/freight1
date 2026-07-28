@@ -24,9 +24,11 @@ export type ModuleKey =
   | "dashboard"
   | "customers"
   | "drivers"
+  | "vendors"
   | "suppliers"
   | "workOrders"
   | "shipments"
+  | "fleet"
   | "trucks"
   | "expenses"
   | "purchases"
@@ -58,7 +60,7 @@ export interface Customer {
   email: string;
   phone: string;
   address: string;
-  paymentTerms: string; // e.g. "Net 30"
+  paymentTerms: string;
   creditLimit: number;
   status: "Active" | "Inactive";
   createdAt: string;
@@ -74,45 +76,191 @@ export interface Driver {
   joinedAt: string;
 }
 
-export interface Supplier {
+// ================= Vendor (formerly Supplier) =================
+export type VendorCategory =
+  | "Transport"
+  | "Customs"
+  | "Forwarder"
+  | "Port Handling"
+  | "Warehouse"
+  | "Inspection"
+  | "Fuel"
+  | "Other";
+export const VENDOR_CATEGORIES: VendorCategory[] = [
+  "Transport",
+  "Customs",
+  "Forwarder",
+  "Port Handling",
+  "Warehouse",
+  "Inspection",
+  "Fuel",
+  "Other",
+];
+
+export interface Vendor {
   id: string;
   name: string;
+  code: string;
+  category: VendorCategory;
   gst: string;
-  category: string;
   services: string;
   address: string;
   contactName: string;
   contactPhone: string;
   contactEmail: string;
   paymentTerms: string;
+  rating?: number; // 1-5
+  status: "Active" | "Inactive" | "Blacklisted";
   createdAt: string;
 }
 
-export interface Truck {
+// Backward-compat alias
+export type Supplier = Vendor;
+
+// ================= Fleet (formerly Truck) =================
+export type FleetVehicleType = "Trailer 20ft" | "Trailer 40ft" | "Container Truck" | "Open Truck" | "Tanker" | "LCV";
+export const FLEET_VEHICLE_TYPES: FleetVehicleType[] = [
+  "Trailer 20ft",
+  "Trailer 40ft",
+  "Container Truck",
+  "Open Truck",
+  "Tanker",
+  "LCV",
+];
+export type FleetOwnership = "Owned" | "Attached" | "Market Hire";
+export type FleetStatus = "Available" | "Assigned" | "Maintenance" | "Retired";
+
+export interface Fleet {
   id: string;
-  number: string;
+  registration: string; // e.g. MH 04 AB 1234
+  vehicleType: FleetVehicleType;
   capacityTons: number;
+  ownership: FleetOwnership;
+  ownerName?: string;
   driverId?: string;
   insuranceExpiry: string;
   fitnessExpiry: string;
-  status: "Active" | "Maintenance" | "Retired";
+  permitExpiry?: string;
+  pucExpiry?: string;
+  odometerKm?: number;
+  status: FleetStatus;
+  createdAt: string;
 }
 
-export type WorkOrderStatus = "Draft" | "Pending Approval" | "Approved" | "Rejected" | "Converted";
+// Backward-compat alias
+export type Truck = Fleet & { number?: string };
+
+// ================= Work Order v2 =================
+export type WorkOrderStatus =
+  | "Draft"
+  | "Submitted"
+  | "Under Review"
+  | "Pending Approval" // legacy
+  | "Approved"
+  | "Ready for Operations"
+  | "Dispatch Pending"
+  | "Trip Created"
+  | "Converted" // legacy synonym for Trip Created
+  | "Completed"
+  | "Closed"
+  | "Sent Back"
+  | "Rejected";
+
+export const WO_STATUS_FLOW: WorkOrderStatus[] = [
+  "Draft",
+  "Submitted",
+  "Under Review",
+  "Approved",
+  "Ready for Operations",
+  "Dispatch Pending",
+  "Trip Created",
+  "Completed",
+  "Closed",
+];
+
+export type WorkOrderPriority = "Low" | "Normal" | "High" | "Urgent";
+export type CargoType = "FCL" | "LCL" | "Bulk" | "Break-Bulk" | "Reefer" | "Hazardous";
+export type ContainerType = "20ft GP" | "40ft GP" | "40ft HC" | "20ft Reefer" | "40ft Reefer" | "Flat Rack" | "Open Top";
+
+export interface WOActivityLog {
+  id: string;
+  at: string;
+  by: string;
+  action: string;
+  note?: string;
+}
+export interface WOApprovalEntry {
+  id: string;
+  at: string;
+  by: string;
+  decision: "Submitted" | "Approved" | "Rejected" | "Sent Back";
+  note?: string;
+}
+export interface WODoc {
+  id: string;
+  name: string;
+  type: string;
+  dataUrl?: string;
+  uploadedAt: string;
+}
+
 export interface WorkOrder {
   id: string;
   woNumber: string;
   customerId: string;
+  customerRef?: string; // client reference no.
+
+  // cargo & container
+  cargoType?: CargoType;
+  commodity?: string;
+  containerType?: ContainerType;
   containers: number;
-  rate: number;
+  weightTons?: number;
+  volumeCbm?: number;
+
+  // shipping
+  shippingLine?: string;
+  vessel?: string;
+  voyage?: string;
+  blNumber?: string;
+  deliveryOrderNo?: string;
+  port?: string;
+  terminal?: string;
+
+  // route
   pickup: string;
   delivery: string;
+  deliveryContactName?: string;
+  deliveryContactPhone?: string;
+
+  // commercial
+  rate: number;
+  currency?: "INR" | "USD" | "EUR";
+  taxPct?: number;
+  billingTerms?: string;
   terms: string;
+
+  // schedule
+  priority?: WorkOrderPriority;
   startDate: string;
   endDate: string;
+  requiredDeliveryDate?: string;
+
+  // vendor
+  primaryVendorId?: string;
+
+  // status
   status: WorkOrderStatus;
   shipmentId?: string;
+  remarks?: string;
+
+  // logs
+  activityLog?: WOActivityLog[];
+  approvalHistory?: WOApprovalEntry[];
+  docs?: WODoc[];
+
   createdAt: string;
+  createdBy?: string;
 }
 
 export const SHIPMENT_STAGES = [
@@ -235,3 +383,40 @@ export interface JournalEntry {
   amount: number;
   narration: string;
 }
+
+// Reference data
+export const SHIPPING_LINES = [
+  "Maersk",
+  "MSC",
+  "CMA CGM",
+  "Hapag-Lloyd",
+  "ONE",
+  "Evergreen",
+  "COSCO",
+  "ZIM",
+];
+export const INDIAN_PORTS = [
+  "JNPT (Nhava Sheva)",
+  "Mundra",
+  "Kandla",
+  "Chennai",
+  "Krishnapatnam",
+  "Cochin",
+  "Visakhapatnam",
+  "Tuticorin",
+  "Hazira",
+  "Pipavav",
+  "Kolkata",
+  "ICD Tughlakabad",
+  "ICD Dadri",
+];
+export const CONTAINER_TYPES: ContainerType[] = [
+  "20ft GP",
+  "40ft GP",
+  "40ft HC",
+  "20ft Reefer",
+  "40ft Reefer",
+  "Flat Rack",
+  "Open Top",
+];
+export const CARGO_TYPES: CargoType[] = ["FCL", "LCL", "Bulk", "Break-Bulk", "Reefer", "Hazardous"];
