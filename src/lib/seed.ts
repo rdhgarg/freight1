@@ -1,8 +1,8 @@
 import type {
   Customer,
   Driver,
-  Supplier,
-  Truck,
+  Vendor,
+  Fleet,
   WorkOrder,
   Shipment,
   Expense,
@@ -42,19 +42,26 @@ export const seedDrivers: Driver[] = [
   { id: "dr5", name: "Iqbal Khan", mobile: "+91 90000 55555", license: "TS09 20200006789", truckId: "t4", status: "On Trip", joinedAt: d(-400) },
 ];
 
-export const seedTrucks: Truck[] = [
-  { id: "t1", number: "MH 04 AB 1234", capacityTons: 20, driverId: "dr1", insuranceExpiry: d(180), fitnessExpiry: d(360), status: "Active" },
-  { id: "t2", number: "DL 01 CD 5678", capacityTons: 16, driverId: "dr2", insuranceExpiry: d(90), fitnessExpiry: d(200), status: "Active" },
-  { id: "t3", number: "PB 10 EF 9012", capacityTons: 25, driverId: "dr3", insuranceExpiry: d(45), fitnessExpiry: d(150), status: "Active" },
-  { id: "t4", number: "TS 09 GH 3456", capacityTons: 18, driverId: "dr5", insuranceExpiry: d(-10), fitnessExpiry: d(60), status: "Active" },
-  { id: "t5", number: "GJ 01 IJ 7890", capacityTons: 22, insuranceExpiry: d(300), fitnessExpiry: d(400), status: "Maintenance" },
+export const seedFleet: Fleet[] = [
+  { id: "t1", registration: "MH 04 AB 1234", vehicleType: "Trailer 40ft", capacityTons: 25, ownership: "Owned", driverId: "dr1", insuranceExpiry: d(180), fitnessExpiry: d(360), permitExpiry: d(210), pucExpiry: d(60), odometerKm: 154000, status: "Assigned", createdAt: d(-720) },
+  { id: "t2", registration: "DL 01 CD 5678", vehicleType: "Container Truck", capacityTons: 16, ownership: "Owned", driverId: "dr2", insuranceExpiry: d(90), fitnessExpiry: d(200), permitExpiry: d(150), pucExpiry: d(30), odometerKm: 98000, status: "Available", createdAt: d(-500) },
+  { id: "t3", registration: "PB 10 EF 9012", vehicleType: "Trailer 20ft", capacityTons: 22, ownership: "Attached", ownerName: "Balwant Transports", driverId: "dr3", insuranceExpiry: d(45), fitnessExpiry: d(150), permitExpiry: d(90), pucExpiry: d(15), odometerKm: 220000, status: "Available", createdAt: d(-900) },
+  { id: "t4", registration: "TS 09 GH 3456", vehicleType: "Container Truck", capacityTons: 18, ownership: "Owned", driverId: "dr5", insuranceExpiry: d(-10), fitnessExpiry: d(60), permitExpiry: d(-5), pucExpiry: d(-2), odometerKm: 176000, status: "Assigned", createdAt: d(-600) },
+  { id: "t5", registration: "GJ 01 IJ 7890", vehicleType: "Tanker", capacityTons: 22, ownership: "Market Hire", ownerName: "Prime Logistics", insuranceExpiry: d(300), fitnessExpiry: d(400), permitExpiry: d(300), pucExpiry: d(120), odometerKm: 44000, status: "Maintenance", createdAt: d(-200) },
+  { id: "t6", registration: "TN 22 KL 4455", vehicleType: "Trailer 40ft", capacityTons: 28, ownership: "Owned", insuranceExpiry: d(220), fitnessExpiry: d(320), permitExpiry: d(180), pucExpiry: d(80), odometerKm: 12000, status: "Available", createdAt: d(-60) },
 ];
+export const seedTrucks = seedFleet;
 
-export const seedSuppliers: Supplier[] = [
-  { id: "s1", name: "PortEdge Services", gst: "27AAACP1010K1Z8", category: "Port Handling", services: "Customs, Handling, Storage", address: "JNPT, Navi Mumbai 400707", contactName: "Girish Patel", contactPhone: "+91 99000 10001", contactEmail: "ops@portedge.in", paymentTerms: "Net 15", createdAt: d(-250) },
-  { id: "s2", name: "FuelMart India", gst: "07AABCF2020L1Z2", category: "Fuel", services: "Diesel, Lubricants", address: "NH-8, Gurugram 122001", contactName: "Nitin Sharma", contactPhone: "+91 99000 20002", contactEmail: "sales@fuelmart.in", paymentTerms: "Net 7", createdAt: d(-180) },
-  { id: "s3", name: "SafeInspect Ltd", gst: "24AAECS3030M1Z6", category: "Inspection", services: "Container inspection, X-Ray", address: "Mundra, Kutch 370421", contactName: "Rita Joshi", contactPhone: "+91 99000 30003", contactEmail: "info@safeinspect.co", paymentTerms: "Net 30", createdAt: d(-140) },
+export const seedVendors: Vendor[] = [
+  { id: "s1", name: "PortEdge Services", code: "V-0001", category: "Port Handling", gst: "27AAACP1010K1Z8", services: "Customs, Handling, Storage", address: "JNPT, Navi Mumbai 400707", contactName: "Girish Patel", contactPhone: "+91 99000 10001", contactEmail: "ops@portedge.in", paymentTerms: "Net 15", rating: 4.5, status: "Active", createdAt: d(-250) },
+  { id: "s2", name: "FuelMart India", code: "V-0002", category: "Fuel", gst: "07AABCF2020L1Z2", services: "Diesel, Lubricants", address: "NH-8, Gurugram 122001", contactName: "Nitin Sharma", contactPhone: "+91 99000 20002", contactEmail: "sales@fuelmart.in", paymentTerms: "Net 7", rating: 4.2, status: "Active", createdAt: d(-180) },
+  { id: "s3", name: "SafeInspect Ltd", code: "V-0003", category: "Inspection", gst: "24AAECS3030M1Z6", services: "Container inspection, X-Ray", address: "Mundra, Kutch 370421", contactName: "Rita Joshi", contactPhone: "+91 99000 30003", contactEmail: "info@safeinspect.co", paymentTerms: "Net 30", rating: 4.0, status: "Active", createdAt: d(-140) },
+  { id: "s4", name: "Trans Global CHA", code: "V-0004", category: "Customs", gst: "27AABCT4040N1Z4", services: "Customs clearance, Documentation", address: "Nhava Sheva, Navi Mumbai", contactName: "Anil Deshmukh", contactPhone: "+91 99000 40004", contactEmail: "ops@transglobal.in", paymentTerms: "Net 30", rating: 4.6, status: "Active", createdAt: d(-320) },
+  { id: "s5", name: "SpeedRoad Carriers", code: "V-0005", category: "Transport", gst: "24AAFSR5050P1Z0", services: "Trailer & container transport", address: "Ahmedabad, GJ 380001", contactName: "Kishan Patel", contactPhone: "+91 99000 50005", contactEmail: "ops@speedroad.in", paymentTerms: "Net 15", rating: 4.3, status: "Active", createdAt: d(-410) },
+  { id: "s6", name: "OceanBridge Forwarders", code: "V-0006", category: "Forwarder", gst: "07AAECO6060Q1Z8", services: "Sea freight forwarding", address: "Nehru Place, Delhi", contactName: "Meera Nair", contactPhone: "+91 99000 60006", contactEmail: "hello@oceanbridge.co", paymentTerms: "Net 45", rating: 4.4, status: "Active", createdAt: d(-500) },
+  { id: "s7", name: "Cargo Depot Warehousing", code: "V-0007", category: "Warehouse", gst: "36AAACC7070R1Z2", services: "Bonded warehouse, storage", address: "Hitech City, Hyderabad", contactName: "Suresh Rao", contactPhone: "+91 99000 70007", contactEmail: "ops@cargodepot.in", paymentTerms: "Net 30", rating: 3.9, status: "Active", createdAt: d(-150) },
 ];
+export const seedSuppliers = seedVendors;
 
 const makeTimeline = (upto: number) =>
   SHIPMENT_STAGES.slice(0, upto).map((s, i) => ({
@@ -66,11 +73,73 @@ const makeTimeline = (upto: number) =>
   }));
 
 export const seedWorkOrders: WorkOrder[] = [
-  { id: "w1", woNumber: "WO-2026-0001", customerId: "c1", containers: 4, rate: 85000, pickup: "JNPT Port, Mumbai", delivery: "Bhiwandi Warehouse, MH", terms: "Door delivery, unloading included", startDate: d(-30), endDate: d(-25), status: "Converted", shipmentId: "sh1", createdAt: d(-32) },
-  { id: "w2", woNumber: "WO-2026-0002", customerId: "c2", containers: 2, rate: 62000, pickup: "ICD Tughlakabad, Delhi", delivery: "Manesar Plant, HR", terms: "Standard 24hr free time", startDate: d(-20), endDate: d(-18), status: "Converted", shipmentId: "sh2", createdAt: d(-22) },
-  { id: "w3", woNumber: "WO-2026-0003", customerId: "c3", containers: 6, rate: 92000, pickup: "Kandla Port", delivery: "Ahmedabad SEZ", terms: "Multi-drop", startDate: d(-10), endDate: d(-5), status: "Approved", createdAt: d(-12) },
-  { id: "w4", woNumber: "WO-2026-0004", customerId: "c5", containers: 3, rate: 74000, pickup: "Krishnapatnam Port", delivery: "Hyderabad ICD", terms: "Insurance included", startDate: d(-5), endDate: d(2), status: "Pending Approval", createdAt: d(-6) },
-  { id: "w5", woNumber: "WO-2026-0005", customerId: "c1", containers: 1, rate: 45000, pickup: "Nhava Sheva", delivery: "Pune Chakan", terms: "Priority delivery", startDate: d(3), endDate: d(6), status: "Draft", createdAt: d(-1) },
+  {
+    id: "w1", woNumber: "WO-2026-0001", customerId: "c1", customerRef: "BW/EXP/2026/145",
+    cargoType: "FCL", commodity: "Textiles", containerType: "40ft HC", containers: 4, weightTons: 22, volumeCbm: 60,
+    shippingLine: "Maersk", vessel: "MV Maersk Halifax", voyage: "MH-224E", blNumber: "MAEU2245678", deliveryOrderNo: "DO-88123",
+    port: "JNPT (Nhava Sheva)", terminal: "BMCT",
+    pickup: "JNPT Port, Mumbai", delivery: "Bhiwandi Warehouse, MH",
+    deliveryContactName: "Ramesh (Bluewave WH)", deliveryContactPhone: "+91 98300 11122",
+    rate: 85000, currency: "INR", taxPct: 18, billingTerms: "Net 30", terms: "Door delivery, unloading included",
+    priority: "High", startDate: d(-30), endDate: d(-25), requiredDeliveryDate: d(-24),
+    primaryVendorId: "s5",
+    status: "Trip Created", shipmentId: "sh1",
+    activityLog: [{ id: "a1", at: d(-32), by: "Priya Menon", action: "WO created" }, { id: "a2", at: d(-31), by: "Rohit Verma", action: "Approved" }, { id: "a3", at: d(-30), by: "System", action: "Trip created" }],
+    approvalHistory: [{ id: "ap1", at: d(-32), by: "Priya Menon", decision: "Submitted" }, { id: "ap2", at: d(-31), by: "Rohit Verma", decision: "Approved", note: "Approved with priority" }],
+    createdAt: d(-32), createdBy: "Priya Menon",
+  },
+  {
+    id: "w2", woNumber: "WO-2026-0002", customerId: "c2", customerRef: "MT/DEL/998",
+    cargoType: "FCL", commodity: "Auto Parts", containerType: "20ft GP", containers: 2, weightTons: 12,
+    shippingLine: "CMA CGM", vessel: "CMA CGM Louvre", voyage: "CGM-11N", blNumber: "CMDU9987654",
+    port: "ICD Tughlakabad", terminal: "TKD",
+    pickup: "ICD Tughlakabad, Delhi", delivery: "Manesar Plant, HR",
+    rate: 62000, currency: "INR", taxPct: 18, terms: "Standard 24hr free time",
+    priority: "Normal", startDate: d(-20), endDate: d(-18),
+    primaryVendorId: "s4",
+    status: "Trip Created", shipmentId: "sh2",
+    activityLog: [{ id: "a4", at: d(-22), by: "Priya Menon", action: "WO created" }],
+    approvalHistory: [{ id: "ap3", at: d(-22), by: "Priya Menon", decision: "Submitted" }, { id: "ap4", at: d(-21), by: "Rohit Verma", decision: "Approved" }],
+    createdAt: d(-22), createdBy: "Priya Menon",
+  },
+  {
+    id: "w3", woNumber: "WO-2026-0003", customerId: "c3", customerRef: "CL/2026/44",
+    cargoType: "FCL", commodity: "Chemicals (Non-Haz)", containerType: "20ft GP", containers: 6, weightTons: 44,
+    shippingLine: "MSC", vessel: "MSC Ingrid", voyage: "MSC-33W",
+    port: "Kandla", terminal: "Kandla Cargo",
+    pickup: "Kandla Port", delivery: "Ahmedabad SEZ",
+    rate: 92000, currency: "INR", taxPct: 18, terms: "Multi-drop",
+    priority: "Normal", startDate: d(-10), endDate: d(-5),
+    primaryVendorId: "s5",
+    status: "Ready for Operations",
+    activityLog: [{ id: "a5", at: d(-12), by: "Priya Menon", action: "WO created" }, { id: "a6", at: d(-11), by: "Rohit Verma", action: "Approved" }],
+    approvalHistory: [{ id: "ap5", at: d(-12), by: "Priya Menon", decision: "Submitted" }, { id: "ap6", at: d(-11), by: "Rohit Verma", decision: "Approved" }],
+    createdAt: d(-12), createdBy: "Priya Menon",
+  },
+  {
+    id: "w4", woNumber: "WO-2026-0004", customerId: "c5", customerRef: "SS/HYD/778",
+    cargoType: "FCL", commodity: "Electronics", containerType: "40ft HC", containers: 3, weightTons: 18,
+    shippingLine: "ONE", vessel: "ONE Aquila", voyage: "ONE-04E",
+    port: "Krishnapatnam", terminal: "KPCT",
+    pickup: "Krishnapatnam Port", delivery: "Hyderabad ICD",
+    rate: 74000, currency: "INR", taxPct: 18, terms: "Insurance included",
+    priority: "High", startDate: d(-5), endDate: d(2),
+    status: "Submitted",
+    activityLog: [{ id: "a7", at: d(-6), by: "Priya Menon", action: "WO created & submitted" }],
+    approvalHistory: [{ id: "ap7", at: d(-6), by: "Priya Menon", decision: "Submitted" }],
+    createdAt: d(-6), createdBy: "Priya Menon",
+  },
+  {
+    id: "w5", woNumber: "WO-2026-0005", customerId: "c1", customerRef: "BW/EXP/2026/152",
+    cargoType: "LCL", commodity: "Garments", containerType: "20ft GP", containers: 1, weightTons: 8,
+    shippingLine: "Hapag-Lloyd", port: "JNPT (Nhava Sheva)",
+    pickup: "Nhava Sheva", delivery: "Pune Chakan",
+    rate: 45000, currency: "INR", taxPct: 18, terms: "Priority delivery",
+    priority: "Urgent", startDate: d(3), endDate: d(6),
+    status: "Draft",
+    activityLog: [{ id: "a8", at: d(-1), by: "Priya Menon", action: "Draft created" }],
+    createdAt: d(-1), createdBy: "Priya Menon",
+  },
 ];
 
 export const seedShipments: Shipment[] = [

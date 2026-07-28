@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type {
-  Customer, Driver, Supplier, Truck, WorkOrder, Shipment, Expense, Purchase, Invoice, Receipt, JournalEntry,
-  ShipmentStage, ShipmentTimelineEntry,
+  Customer, Driver, Vendor, Fleet, WorkOrder, Shipment, Expense, Purchase, Invoice, Receipt, JournalEntry,
+  ShipmentStage, ShipmentTimelineEntry, WorkOrderStatus, WOActivityLog, WOApprovalEntry,
 } from "@/lib/types";
 import {
-  seedCustomers, seedDrivers, seedSuppliers, seedTrucks, seedWorkOrders,
+  seedCustomers, seedDrivers, seedVendors, seedFleet, seedWorkOrders,
   seedShipments, seedExpenses, seedPurchases, seedInvoices, seedReceipts, seedJournal,
 } from "@/lib/seed";
 import { uid } from "@/lib/format";
@@ -13,8 +13,8 @@ import { uid } from "@/lib/format";
 interface DataState {
   customers: Customer[];
   drivers: Driver[];
-  suppliers: Supplier[];
-  trucks: Truck[];
+  vendors: Vendor[];
+  fleet: Fleet[];
   workOrders: WorkOrder[];
   shipments: Shipment[];
   expenses: Expense[];
@@ -23,30 +23,26 @@ interface DataState {
   receipts: Receipt[];
   journal: JournalEntry[];
 
-  // customers
   upsertCustomer: (c: Customer) => void;
   deleteCustomer: (id: string) => void;
 
-  // drivers
   upsertDriver: (d: Driver) => void;
   deleteDriver: (id: string) => void;
 
-  // suppliers
-  upsertSupplier: (s: Supplier) => void;
-  deleteSupplier: (id: string) => void;
+  upsertVendor: (v: Vendor) => void;
+  deleteVendor: (id: string) => void;
 
-  // trucks
-  upsertTruck: (t: Truck) => void;
-  deleteTruck: (id: string) => void;
+  upsertFleet: (f: Fleet) => void;
+  deleteFleet: (id: string) => void;
 
-  // work orders
   upsertWorkOrder: (w: WorkOrder) => void;
   deleteWorkOrder: (id: string) => void;
-  approveWorkOrder: (id: string) => void;
-  rejectWorkOrder: (id: string) => void;
+  transitionWorkOrder: (id: string, next: WorkOrderStatus, by: string, note?: string) => void;
+  approveWorkOrder: (id: string, by?: string, note?: string) => void;
+  rejectWorkOrder: (id: string, by?: string, note?: string) => void;
+  sendBackWorkOrder: (id: string, by?: string, note?: string) => void;
   generateShipmentFromWO: (id: string) => string | null;
 
-  // shipments
   upsertShipment: (s: Shipment) => void;
   deleteShipment: (id: string) => void;
   advanceShipmentStage: (id: string, stage: ShipmentStage, note?: string, by?: string) => void;
@@ -54,25 +50,20 @@ interface DataState {
   addShipmentDoc: (id: string, doc: Shipment["docs"][number]) => void;
   setDeliveryProof: (id: string, dataUrl: string) => void;
 
-  // expenses
   upsertExpense: (e: Expense) => void;
   deleteExpense: (id: string) => void;
   approveExpense: (id: string) => void;
   rejectExpense: (id: string) => void;
 
-  // purchases
   upsertPurchase: (p: Purchase) => void;
   deletePurchase: (id: string) => void;
 
-  // invoices
   upsertInvoice: (i: Invoice) => void;
   deleteInvoice: (id: string) => void;
 
-  // receipts
   upsertReceipt: (r: Receipt) => void;
   deleteReceipt: (id: string) => void;
 
-  // journal
   upsertJournal: (j: JournalEntry) => void;
   deleteJournal: (id: string) => void;
 
@@ -96,13 +87,22 @@ const deleter =
     set({ [key]: list.filter((x) => x.id !== id) } as unknown as Partial<DataState>);
   };
 
+const appendActivity = (wo: WorkOrder, entry: WOActivityLog): WorkOrder => ({
+  ...wo,
+  activityLog: [...(wo.activityLog ?? []), entry],
+});
+const appendApproval = (wo: WorkOrder, entry: WOApprovalEntry): WorkOrder => ({
+  ...wo,
+  approvalHistory: [...(wo.approvalHistory ?? []), entry],
+});
+
 export const useData = create<DataState>()(
   persist(
     (set, get) => ({
       customers: seedCustomers,
       drivers: seedDrivers,
-      suppliers: seedSuppliers,
-      trucks: seedTrucks,
+      vendors: seedVendors,
+      fleet: seedFleet,
       workOrders: seedWorkOrders,
       shipments: seedShipments,
       expenses: seedExpenses,
@@ -117,23 +117,58 @@ export const useData = create<DataState>()(
       upsertDriver: (d) => upserter<Driver>("drivers")(set, get)(d),
       deleteDriver: (id) => deleter<Driver>("drivers")(set, get)(id),
 
-      upsertSupplier: (s) => upserter<Supplier>("suppliers")(set, get)(s),
-      deleteSupplier: (id) => deleter<Supplier>("suppliers")(set, get)(id),
+      upsertVendor: (v) => upserter<Vendor>("vendors")(set, get)(v),
+      deleteVendor: (id) => deleter<Vendor>("vendors")(set, get)(id),
 
-      upsertTruck: (t) => upserter<Truck>("trucks")(set, get)(t),
-      deleteTruck: (id) => deleter<Truck>("trucks")(set, get)(id),
+      upsertFleet: (f) => upserter<Fleet>("fleet")(set, get)(f),
+      deleteFleet: (id) => deleter<Fleet>("fleet")(set, get)(id),
 
       upsertWorkOrder: (w) => upserter<WorkOrder>("workOrders")(set, get)(w),
       deleteWorkOrder: (id) => deleter<WorkOrder>("workOrders")(set, get)(id),
-      approveWorkOrder: (id) => {
-        set({ workOrders: get().workOrders.map((w) => (w.id === id ? { ...w, status: "Approved" } : w)) });
+      transitionWorkOrder: (id, next, by, note) => {
+        set({
+          workOrders: get().workOrders.map((w) => {
+            if (w.id !== id) return w;
+            const withStatus = { ...w, status: next };
+            return appendActivity(withStatus, { id: uid("a_"), at: new Date().toISOString(), by, action: `Status → ${next}`, note });
+          }),
+        });
       },
-      rejectWorkOrder: (id) => {
-        set({ workOrders: get().workOrders.map((w) => (w.id === id ? { ...w, status: "Rejected" } : w)) });
+      approveWorkOrder: (id, by = "System", note) => {
+        set({
+          workOrders: get().workOrders.map((w) => {
+            if (w.id !== id) return w;
+            const upd = { ...w, status: "Approved" as WorkOrderStatus };
+            const withAct = appendActivity(upd, { id: uid("a_"), at: new Date().toISOString(), by, action: "Approved", note });
+            return appendApproval(withAct, { id: uid("ap_"), at: new Date().toISOString(), by, decision: "Approved", note });
+          }),
+        });
+      },
+      rejectWorkOrder: (id, by = "System", note) => {
+        set({
+          workOrders: get().workOrders.map((w) => {
+            if (w.id !== id) return w;
+            const upd = { ...w, status: "Rejected" as WorkOrderStatus };
+            const withAct = appendActivity(upd, { id: uid("a_"), at: new Date().toISOString(), by, action: "Rejected", note });
+            return appendApproval(withAct, { id: uid("ap_"), at: new Date().toISOString(), by, decision: "Rejected", note });
+          }),
+        });
+      },
+      sendBackWorkOrder: (id, by = "System", note) => {
+        set({
+          workOrders: get().workOrders.map((w) => {
+            if (w.id !== id) return w;
+            const upd = { ...w, status: "Sent Back" as WorkOrderStatus };
+            const withAct = appendActivity(upd, { id: uid("a_"), at: new Date().toISOString(), by, action: "Sent back for revision", note });
+            return appendApproval(withAct, { id: uid("ap_"), at: new Date().toISOString(), by, decision: "Sent Back", note });
+          }),
+        });
       },
       generateShipmentFromWO: (id) => {
         const wo = get().workOrders.find((w) => w.id === id);
-        if (!wo || wo.status !== "Approved") return null;
+        if (!wo) return null;
+        const canConvert = ["Approved", "Ready for Operations", "Dispatch Pending"].includes(wo.status);
+        if (!canConvert) return null;
         const shipmentNo = `SH-2026-${String(get().shipments.length + 1).padStart(4, "0")}`;
         const shipment: Shipment = {
           id: uid("sh_"),
@@ -153,7 +188,14 @@ export const useData = create<DataState>()(
         };
         set({
           shipments: [shipment, ...get().shipments],
-          workOrders: get().workOrders.map((w) => (w.id === id ? { ...w, status: "Converted", shipmentId: shipment.id } : w)),
+          workOrders: get().workOrders.map((w) =>
+            w.id === id
+              ? appendActivity(
+                  { ...w, status: "Trip Created", shipmentId: shipment.id },
+                  { id: uid("a_"), at: new Date().toISOString(), by: "System", action: `Trip ${shipmentNo} created` },
+                )
+              : w,
+          ),
         });
         return shipment.id;
       },
@@ -209,8 +251,8 @@ export const useData = create<DataState>()(
         set({
           customers: seedCustomers,
           drivers: seedDrivers,
-          suppliers: seedSuppliers,
-          trucks: seedTrucks,
+          vendors: seedVendors,
+          fleet: seedFleet,
           workOrders: seedWorkOrders,
           shipments: seedShipments,
           expenses: seedExpenses,
@@ -220,6 +262,30 @@ export const useData = create<DataState>()(
           journal: seedJournal,
         }),
     }),
-    { name: "hams-data" },
+    {
+      name: "hams-data",
+      version: 2,
+      migrate: (persisted: unknown) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const s = (persisted ?? {}) as any;
+        if (s && !s.vendors && s.suppliers) s.vendors = s.suppliers;
+        if (s && !s.fleet && s.trucks) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          s.fleet = (s.trucks as any[]).map((t) => ({
+            id: t.id,
+            registration: t.number ?? t.registration ?? "",
+            vehicleType: t.vehicleType ?? "Container Truck",
+            capacityTons: t.capacityTons ?? 20,
+            ownership: t.ownership ?? "Owned",
+            driverId: t.driverId,
+            insuranceExpiry: t.insuranceExpiry,
+            fitnessExpiry: t.fitnessExpiry,
+            status: t.status === "Active" ? "Available" : t.status ?? "Available",
+            createdAt: t.createdAt ?? new Date().toISOString(),
+          }));
+        }
+        return s;
+      },
+    },
   ),
 );
