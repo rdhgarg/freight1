@@ -457,21 +457,20 @@ export const SHIPPING_LINES = [
   "COSCO",
   "ZIM",
 ];
-export const INDIAN_PORTS = [
-  "JNPT (Nhava Sheva)",
-  "Mundra",
-  "Kandla",
-  "Chennai",
-  "Krishnapatnam",
-  "Cochin",
-  "Visakhapatnam",
-  "Tuticorin",
-  "Hazira",
-  "Pipavav",
-  "Kolkata",
-  "ICD Tughlakabad",
-  "ICD Dadri",
+export const UAE_PORTS = [
+  "Jebel Ali Port",
+  "Khalifa Port (Abu Dhabi)",
+  "Port Rashid",
+  "Port of Fujairah",
+  "Port of Sharjah (Khor Fakkan)",
+  "Hamriyah Free Zone Port",
+  "Mina Zayed",
+  "Ajman Port",
+  "Ras Al Khaimah Port",
+  "DP World — Jebel Ali T3",
 ];
+// Backward-compat alias
+export const INDIAN_PORTS = UAE_PORTS;
 export const CONTAINER_TYPES: ContainerType[] = [
   "20ft GP",
   "40ft GP",
