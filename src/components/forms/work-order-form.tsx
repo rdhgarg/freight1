@@ -31,7 +31,7 @@ export const workOrderSchema = z.object({
   deliveryContactName: z.string().max(100).optional().or(z.literal("")),
   deliveryContactPhone: z.string().max(20).optional().or(z.literal("")),
   rate: z.number().min(0, "Required"),
-  currency: z.enum(["INR", "USD", "EUR"]),
+  currency: z.enum(["AED", "INR", "USD", "EUR"]),
   taxPct: z.number().min(0).max(100),
   billingTerms: z.string().max(80).optional().or(z.literal("")),
   terms: z.string().max(500),
