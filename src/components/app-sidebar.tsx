@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Users, Truck, Warehouse, FileText, PackageSearch, Container,
+  LayoutDashboard, Users, Truck, Warehouse, FileText, PackageSearch,
   Receipt, Wallet, BookOpen, AlertCircle, ClipboardList, Settings, Building2,
   ShieldCheck, UserCog,
 } from "lucide-react";
@@ -24,27 +24,25 @@ const groups: { label: string; items: Item[] }[] = [
     label: "Operations",
     items: [
       { title: "Work Orders", url: "/work-orders", icon: ClipboardList, module: "workOrders" },
-      { title: "Shipments", url: "/shipments", icon: Container, module: "shipments" },
+    ],
+  },
+  {
+    label: "Masters",
+    items: [
+      { title: "Vendors", url: "/vendors", icon: Warehouse, module: "vendors" },
       { title: "Drivers", url: "/drivers", icon: UserCog, module: "drivers" },
-      { title: "Fleet Management", url: "/fleet", icon: Truck, module: "fleet" },
+      { title: "Fleet", url: "/fleet", icon: Truck, module: "fleet" },
     ],
   },
   {
-    label: "Parties",
+    label: "Accounts",
     items: [
-      { title: "Customers", url: "/customers", icon: Users, module: "customers" },
-      { title: "Vendor Management", url: "/vendors", icon: Warehouse, module: "vendors" },
-    ],
-  },
-  {
-    label: "Finance",
-    items: [
-      { title: "Expenses", url: "/expenses", icon: Wallet, module: "expenses" },
-      { title: "Purchases", url: "/purchases", icon: PackageSearch, module: "purchases" },
       { title: "Invoices", url: "/invoices", icon: FileText, module: "invoices" },
       { title: "Receipts", url: "/receipts", icon: Receipt, module: "receipts" },
-      { title: "Ledgers", url: "/ledgers", icon: BookOpen, module: "ledgers" },
       { title: "Outstanding", url: "/outstanding", icon: AlertCircle, module: "outstanding" },
+      { title: "Expenses", url: "/expenses", icon: Wallet, module: "expenses" },
+      { title: "Purchases", url: "/purchases", icon: PackageSearch, module: "purchases" },
+      { title: "Ledgers", url: "/ledgers", icon: BookOpen, module: "ledgers" },
       { title: "Journal", url: "/journal", icon: BookOpen, module: "journal" },
     ],
   },
@@ -73,7 +71,7 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="min-w-0">
               <div className="truncate text-sm font-bold text-sidebar-foreground">HAMS</div>
-              <div className="truncate text-[10px] uppercase tracking-widest text-sidebar-foreground/60">Ops Workflow</div>
+              <div className="truncate text-[10px] uppercase tracking-widest text-sidebar-foreground/60">WO-Driven ERP</div>
             </div>
           )}
         </Link>
