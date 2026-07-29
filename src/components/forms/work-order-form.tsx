@@ -202,9 +202,10 @@ export function WorkOrderFormFields({
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="INR">INR ₹</SelectItem>
+                  <SelectItem value="AED">AED د.إ</SelectItem>
                   <SelectItem value="USD">USD $</SelectItem>
                   <SelectItem value="EUR">EUR €</SelectItem>
+                  <SelectItem value="INR">INR ₹</SelectItem>
                 </SelectContent>
               </Select>
             )} />
