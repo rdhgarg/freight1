@@ -155,28 +155,80 @@ export type WorkOrderStatus =
   | "Draft"
   | "Submitted"
   | "Under Review"
-  | "Pending Approval" // legacy
+  | "Pending Approval"
   | "Approved"
   | "Ready for Operations"
   | "Dispatch Pending"
   | "Trip Created"
-  | "Converted" // legacy synonym for Trip Created
+  | "Converted"
   | "Completed"
+  | "Operations Started"
+  | "Driver Assigned"
+  | "Reached Port"
+  | "Inspection"
+  | "X-Ray"
+  | "Container Picked"
+  | "Out From Port"
+  | "Reached Delivery"
+  | "Delivered"
+  | "Invoice Generated"
+  | "Payment Pending"
+  | "Payment Received"
   | "Closed"
   | "Sent Back"
   | "Rejected";
 
-export const WO_STATUS_FLOW: WorkOrderStatus[] = [
+export const WO_LIFECYCLE: WorkOrderStatus[] = [
   "Draft",
-  "Submitted",
-  "Under Review",
   "Approved",
-  "Ready for Operations",
-  "Dispatch Pending",
-  "Trip Created",
-  "Completed",
+  "Operations Started",
+  "Driver Assigned",
+  "Reached Port",
+  "Inspection",
+  "X-Ray",
+  "Container Picked",
+  "Out From Port",
+  "Reached Delivery",
+  "Delivered",
+  "Invoice Generated",
+  "Payment Pending",
+  "Payment Received",
   "Closed",
 ];
+export const WO_STATUS_FLOW: WorkOrderStatus[] = WO_LIFECYCLE;
+
+export interface WOOperation {
+  id: string;
+  stage: WorkOrderStatus;
+  completed: boolean;
+  completedAt?: string;
+  by?: string;
+  note?: string;
+}
+export interface WOPayment {
+  id: string;
+  date: string;
+  amount: number;
+  mode: "Cash" | "Bank Transfer" | "Cheque" | "Card" | "UPI";
+  reference?: string;
+  by?: string;
+}
+export interface WOExpenseItem {
+  id: string;
+  date: string;
+  category: string;
+  amount: number;
+  vendor?: string;
+  notes?: string;
+  by?: string;
+}
+export interface WOTimelineEntry {
+  id: string;
+  stage: WorkOrderStatus;
+  at: string;
+  note?: string;
+  by?: string;
+}
 
 export type WorkOrderPriority = "Low" | "Normal" | "High" | "Urgent";
 export type CargoType = "FCL" | "LCL" | "Bulk" | "Break-Bulk" | "Reefer" | "Hazardous";
@@ -235,8 +287,8 @@ export interface WorkOrder {
 
   // commercial
   rate: number;
-  currency?: "INR" | "USD" | "EUR";
-  taxPct?: number;
+  currency?: "AED" | "INR" | "USD" | "EUR";
+  taxPct?: number; // VAT %
   billingTerms?: string;
   terms: string;
 
@@ -246,13 +298,23 @@ export interface WorkOrder {
   endDate: string;
   requiredDeliveryDate?: string;
 
-  // vendor
+  // vendor & assignment
   primaryVendorId?: string;
+  assignedDriverId?: string;
+  assignedFleetId?: string;
 
   // status
   status: WorkOrderStatus;
   shipmentId?: string;
   remarks?: string;
+
+  // WO workspace state
+  ops?: WOOperation[];
+  woTimeline?: WOTimelineEntry[];
+  woExpenses?: WOExpenseItem[];
+  payments?: WOPayment[];
+  invoiceNo?: string;
+  invoiceGeneratedAt?: string;
 
   // logs
   activityLog?: WOActivityLog[];
@@ -395,21 +457,20 @@ export const SHIPPING_LINES = [
   "COSCO",
   "ZIM",
 ];
-export const INDIAN_PORTS = [
-  "JNPT (Nhava Sheva)",
-  "Mundra",
-  "Kandla",
-  "Chennai",
-  "Krishnapatnam",
-  "Cochin",
-  "Visakhapatnam",
-  "Tuticorin",
-  "Hazira",
-  "Pipavav",
-  "Kolkata",
-  "ICD Tughlakabad",
-  "ICD Dadri",
+export const UAE_PORTS = [
+  "Jebel Ali Port",
+  "Khalifa Port (Abu Dhabi)",
+  "Port Rashid",
+  "Port of Fujairah",
+  "Port of Sharjah (Khor Fakkan)",
+  "Hamriyah Free Zone Port",
+  "Mina Zayed",
+  "Ajman Port",
+  "Ras Al Khaimah Port",
+  "DP World — Jebel Ali T3",
 ];
+// Backward-compat alias
+export const INDIAN_PORTS = UAE_PORTS;
 export const CONTAINER_TYPES: ContainerType[] = [
   "20ft GP",
   "40ft GP",

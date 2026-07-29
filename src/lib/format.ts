@@ -1,9 +1,13 @@
-export const inr = (n: number) =>
-  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n || 0);
+// Currency: AED (United Arab Emirates Dirham).
+// `inr` is kept as an alias so existing imports keep working during the AED migration.
+export const aed = (n: number) =>
+  new Intl.NumberFormat("en-AE", { style: "currency", currency: "AED", maximumFractionDigits: 0 }).format(n || 0);
+
+export const inr = aed;
 
 export const fmtDate = (iso: string) => {
   try {
-    return new Date(iso).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+    return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
   } catch {
     return iso;
   }
@@ -11,7 +15,7 @@ export const fmtDate = (iso: string) => {
 
 export const fmtDateTime = (iso: string) => {
   try {
-    return new Date(iso).toLocaleString("en-IN", {
+    return new Date(iso).toLocaleString("en-GB", {
       day: "2-digit",
       month: "short",
       year: "numeric",

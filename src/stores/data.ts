@@ -3,7 +3,9 @@ import { persist } from "zustand/middleware";
 import type {
   Customer, Driver, Vendor, Fleet, WorkOrder, Shipment, Expense, Purchase, Invoice, Receipt, JournalEntry,
   ShipmentStage, ShipmentTimelineEntry, WorkOrderStatus, WOActivityLog, WOApprovalEntry,
+  WOOperation, WOPayment, WOExpenseItem, WOTimelineEntry,
 } from "@/lib/types";
+import { WO_LIFECYCLE } from "@/lib/types";
 import {
   seedCustomers, seedDrivers, seedVendors, seedFleet, seedWorkOrders,
   seedShipments, seedExpenses, seedPurchases, seedInvoices, seedReceipts, seedJournal,
@@ -42,6 +44,14 @@ interface DataState {
   rejectWorkOrder: (id: string, by?: string, note?: string) => void;
   sendBackWorkOrder: (id: string, by?: string, note?: string) => void;
   generateShipmentFromWO: (id: string) => string | null;
+
+  // WO workspace actions
+  advanceWOStatus: (id: string, next: WorkOrderStatus, by: string, note?: string) => void;
+  assignDriverToWO: (id: string, driverId: string, fleetId?: string, by?: string) => void;
+  toggleWOOperation: (id: string, stage: WorkOrderStatus, by: string, note?: string) => void;
+  addWOExpense: (id: string, entry: Omit<WOExpenseItem, "id">) => void;
+  addWOPayment: (id: string, entry: Omit<WOPayment, "id">) => void;
+  generateInvoiceForWO: (id: string, by: string) => void;
 
   upsertShipment: (s: Shipment) => void;
   deleteShipment: (id: string) => void;
@@ -95,6 +105,15 @@ const appendApproval = (wo: WorkOrder, entry: WOApprovalEntry): WorkOrder => ({
   ...wo,
   approvalHistory: [...(wo.approvalHistory ?? []), entry],
 });
+const appendTimeline = (wo: WorkOrder, entry: WOTimelineEntry): WorkOrder => ({
+  ...wo,
+  woTimeline: [...(wo.woTimeline ?? []), entry],
+});
+
+const markOpDone = (ops: WOOperation[] | undefined, stage: WorkOrderStatus, by: string, note?: string): WOOperation[] => {
+  const base = ops ?? WO_LIFECYCLE.filter((s) => s !== "Draft").map((s) => ({ id: uid("op_"), stage: s, completed: false } as WOOperation));
+  return base.map((o) => (o.stage === stage ? { ...o, completed: true, completedAt: new Date().toISOString(), by, note } : o));
+};
 
 export const useData = create<DataState>()(
   persist(
@@ -113,13 +132,10 @@ export const useData = create<DataState>()(
 
       upsertCustomer: (c) => upserter<Customer>("customers")(set, get)(c),
       deleteCustomer: (id) => deleter<Customer>("customers")(set, get)(id),
-
       upsertDriver: (d) => upserter<Driver>("drivers")(set, get)(d),
       deleteDriver: (id) => deleter<Driver>("drivers")(set, get)(id),
-
       upsertVendor: (v) => upserter<Vendor>("vendors")(set, get)(v),
       deleteVendor: (id) => deleter<Vendor>("vendors")(set, get)(id),
-
       upsertFleet: (f) => upserter<Fleet>("fleet")(set, get)(f),
       deleteFleet: (id) => deleter<Fleet>("fleet")(set, get)(id),
 
@@ -129,8 +145,9 @@ export const useData = create<DataState>()(
         set({
           workOrders: get().workOrders.map((w) => {
             if (w.id !== id) return w;
-            const withStatus = { ...w, status: next };
-            return appendActivity(withStatus, { id: uid("a_"), at: new Date().toISOString(), by, action: `Status → ${next}`, note });
+            const upd = { ...w, status: next };
+            const a = appendActivity(upd, { id: uid("a_"), at: new Date().toISOString(), by, action: `Status → ${next}`, note });
+            return appendTimeline(a, { id: uid("tl_"), stage: next, at: new Date().toISOString(), by, note });
           }),
         });
       },
@@ -139,8 +156,9 @@ export const useData = create<DataState>()(
           workOrders: get().workOrders.map((w) => {
             if (w.id !== id) return w;
             const upd = { ...w, status: "Approved" as WorkOrderStatus };
-            const withAct = appendActivity(upd, { id: uid("a_"), at: new Date().toISOString(), by, action: "Approved", note });
-            return appendApproval(withAct, { id: uid("ap_"), at: new Date().toISOString(), by, decision: "Approved", note });
+            const a = appendActivity(upd, { id: uid("a_"), at: new Date().toISOString(), by, action: "Approved", note });
+            const ap = appendApproval(a, { id: uid("ap_"), at: new Date().toISOString(), by, decision: "Approved", note });
+            return appendTimeline(ap, { id: uid("tl_"), stage: "Approved", at: new Date().toISOString(), by, note });
           }),
         });
       },
@@ -149,8 +167,8 @@ export const useData = create<DataState>()(
           workOrders: get().workOrders.map((w) => {
             if (w.id !== id) return w;
             const upd = { ...w, status: "Rejected" as WorkOrderStatus };
-            const withAct = appendActivity(upd, { id: uid("a_"), at: new Date().toISOString(), by, action: "Rejected", note });
-            return appendApproval(withAct, { id: uid("ap_"), at: new Date().toISOString(), by, decision: "Rejected", note });
+            const a = appendActivity(upd, { id: uid("a_"), at: new Date().toISOString(), by, action: "Rejected", note });
+            return appendApproval(a, { id: uid("ap_"), at: new Date().toISOString(), by, decision: "Rejected", note });
           }),
         });
       },
@@ -159,45 +177,96 @@ export const useData = create<DataState>()(
           workOrders: get().workOrders.map((w) => {
             if (w.id !== id) return w;
             const upd = { ...w, status: "Sent Back" as WorkOrderStatus };
-            const withAct = appendActivity(upd, { id: uid("a_"), at: new Date().toISOString(), by, action: "Sent back for revision", note });
-            return appendApproval(withAct, { id: uid("ap_"), at: new Date().toISOString(), by, decision: "Sent Back", note });
+            const a = appendActivity(upd, { id: uid("a_"), at: new Date().toISOString(), by, action: "Sent back for revision", note });
+            return appendApproval(a, { id: uid("ap_"), at: new Date().toISOString(), by, decision: "Sent Back", note });
           }),
         });
       },
-      generateShipmentFromWO: (id) => {
-        const wo = get().workOrders.find((w) => w.id === id);
-        if (!wo) return null;
-        const canConvert = ["Approved", "Ready for Operations", "Dispatch Pending"].includes(wo.status);
-        if (!canConvert) return null;
-        const shipmentNo = `SH-2026-${String(get().shipments.length + 1).padStart(4, "0")}`;
-        const shipment: Shipment = {
-          id: uid("sh_"),
-          shipmentNo,
-          workOrderId: wo.id,
-          customerId: wo.customerId,
-          pickup: wo.pickup,
-          delivery: wo.delivery,
-          containers: wo.containers,
-          amount: wo.containers * wo.rate,
-          stage: "Customs Clearance",
-          timeline: [
-            { id: uid("tl_"), stage: "Customs Clearance", at: new Date().toISOString(), note: "Shipment created from work order", by: "System" },
-          ],
-          docs: [],
-          createdAt: new Date().toISOString(),
-        };
+      generateShipmentFromWO: () => null, // legacy no-op — WO is the source of truth now
+
+      advanceWOStatus: (id, next, by, note) => {
         set({
-          shipments: [shipment, ...get().shipments],
-          workOrders: get().workOrders.map((w) =>
-            w.id === id
-              ? appendActivity(
-                  { ...w, status: "Trip Created", shipmentId: shipment.id },
-                  { id: uid("a_"), at: new Date().toISOString(), by: "System", action: `Trip ${shipmentNo} created` },
-                )
-              : w,
-          ),
+          workOrders: get().workOrders.map((w) => {
+            if (w.id !== id) return w;
+            const now = new Date().toISOString();
+            const ops = markOpDone(w.ops, next, by, note);
+            const upd: WorkOrder = { ...w, status: next, ops };
+            const a = appendActivity(upd, { id: uid("a_"), at: now, by, action: `Advanced to ${next}`, note });
+            return appendTimeline(a, { id: uid("tl_"), stage: next, at: now, by, note });
+          }),
         });
-        return shipment.id;
+      },
+      assignDriverToWO: (id, driverId, fleetId, by = "System") => {
+        set({
+          workOrders: get().workOrders.map((w) => {
+            if (w.id !== id) return w;
+            const now = new Date().toISOString();
+            const status: WorkOrderStatus = "Driver Assigned";
+            const ops = markOpDone(w.ops, status, by, "Driver assigned");
+            const upd: WorkOrder = { ...w, assignedDriverId: driverId, assignedFleetId: fleetId ?? w.assignedFleetId, status, ops };
+            const a = appendActivity(upd, { id: uid("a_"), at: now, by, action: "Driver assigned" });
+            return appendTimeline(a, { id: uid("tl_"), stage: status, at: now, by });
+          }),
+          drivers: get().drivers.map((d) => (d.id === driverId ? { ...d, status: "On Trip" } : d)),
+          fleet: fleetId
+            ? get().fleet.map((f) => (f.id === fleetId ? { ...f, status: "Assigned", driverId } : f))
+            : get().fleet,
+        });
+      },
+      toggleWOOperation: (id, stage, by, note) => {
+        set({
+          workOrders: get().workOrders.map((w) => {
+            if (w.id !== id) return w;
+            const ops = markOpDone(w.ops, stage, by, note);
+            return { ...w, ops };
+          }),
+        });
+      },
+      addWOExpense: (id, entry) => {
+        set({
+          workOrders: get().workOrders.map((w) => {
+            if (w.id !== id) return w;
+            const item: WOExpenseItem = { id: uid("we_"), ...entry };
+            const a = appendActivity({ ...w, woExpenses: [...(w.woExpenses ?? []), item] }, {
+              id: uid("a_"), at: new Date().toISOString(), by: entry.by ?? "System",
+              action: `Expense added — ${entry.category}`, note: `${entry.amount}`,
+            });
+            return a;
+          }),
+        });
+      },
+      addWOPayment: (id, entry) => {
+        set({
+          workOrders: get().workOrders.map((w) => {
+            if (w.id !== id) return w;
+            const item: WOPayment = { id: uid("wp_"), ...entry };
+            const payments = [...(w.payments ?? []), item];
+            const totalPaid = payments.reduce((s, p) => s + p.amount, 0);
+            const subtotal = w.containers * w.rate;
+            const tax = (subtotal * (w.taxPct ?? 0)) / 100;
+            const total = subtotal + tax;
+            const nextStatus: WorkOrderStatus = totalPaid >= total ? "Payment Received" : "Payment Pending";
+            const ops = markOpDone(w.ops, nextStatus, entry.by ?? "System", `${entry.mode} · ${entry.amount}`);
+            const upd: WorkOrder = { ...w, payments, status: nextStatus, ops };
+            const now = new Date().toISOString();
+            const a = appendActivity(upd, { id: uid("a_"), at: now, by: entry.by ?? "System", action: `Payment received — ${entry.mode}`, note: `${entry.amount}` });
+            return appendTimeline(a, { id: uid("tl_"), stage: nextStatus, at: now, by: entry.by ?? "System" });
+          }),
+        });
+      },
+      generateInvoiceForWO: (id, by) => {
+        set({
+          workOrders: get().workOrders.map((w) => {
+            if (w.id !== id) return w;
+            const now = new Date().toISOString();
+            const invoiceNo = w.invoiceNo ?? `INV-${new Date().getFullYear()}-${String(get().workOrders.filter((x) => x.invoiceNo).length + 1).padStart(4, "0")}`;
+            const status: WorkOrderStatus = "Invoice Generated";
+            const ops = markOpDone(w.ops, status, by, `Invoice ${invoiceNo}`);
+            const upd: WorkOrder = { ...w, invoiceNo, invoiceGeneratedAt: now, status, ops };
+            const a = appendActivity(upd, { id: uid("a_"), at: now, by, action: `Invoice ${invoiceNo} generated` });
+            return appendTimeline(a, { id: uid("tl_"), stage: status, at: now, by });
+          }),
+        });
       },
 
       upsertShipment: (s) => upserter<Shipment>("shipments")(set, get)(s),
@@ -264,7 +333,7 @@ export const useData = create<DataState>()(
     }),
     {
       name: "hams-data",
-      version: 2,
+      version: 3,
       migrate: (persisted: unknown) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const s = (persisted ?? {}) as any;
@@ -284,7 +353,21 @@ export const useData = create<DataState>()(
             createdAt: t.createdAt ?? new Date().toISOString(),
           }));
         }
-        return s;
+        // Reset to fresh UAE-styled seed when migrating to v3
+        return {
+          ...s,
+          customers: seedCustomers,
+          vendors: seedVendors,
+          drivers: seedDrivers,
+          fleet: seedFleet,
+          workOrders: seedWorkOrders,
+          shipments: seedShipments,
+          expenses: seedExpenses,
+          purchases: seedPurchases,
+          invoices: seedInvoices,
+          receipts: seedReceipts,
+          journal: seedJournal,
+        };
       },
     },
   ),

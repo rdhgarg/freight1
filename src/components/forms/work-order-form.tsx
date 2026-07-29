@@ -31,7 +31,7 @@ export const workOrderSchema = z.object({
   deliveryContactName: z.string().max(100).optional().or(z.literal("")),
   deliveryContactPhone: z.string().max(20).optional().or(z.literal("")),
   rate: z.number().min(0, "Required"),
-  currency: z.enum(["INR", "USD", "EUR"]),
+  currency: z.enum(["AED", "INR", "USD", "EUR"]),
   taxPct: z.number().min(0).max(100),
   billingTerms: z.string().max(80).optional().or(z.literal("")),
   terms: z.string().max(500),
@@ -82,8 +82,8 @@ export function WorkOrderFormFields({
         deliveryContactName: defaultValues?.deliveryContactName ?? "",
         deliveryContactPhone: defaultValues?.deliveryContactPhone ?? "",
         rate: defaultValues?.rate ?? 0,
-        currency: defaultValues?.currency ?? "INR",
-        taxPct: defaultValues?.taxPct ?? 18,
+        currency: defaultValues?.currency ?? "AED",
+        taxPct: defaultValues?.taxPct ?? 5,
         billingTerms: defaultValues?.billingTerms ?? "Net 30",
         terms: defaultValues?.terms ?? "",
         priority: defaultValues?.priority ?? "Normal",
@@ -202,9 +202,10 @@ export function WorkOrderFormFields({
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="INR">INR ₹</SelectItem>
+                  <SelectItem value="AED">AED د.إ</SelectItem>
                   <SelectItem value="USD">USD $</SelectItem>
                   <SelectItem value="EUR">EUR €</SelectItem>
+                  <SelectItem value="INR">INR ₹</SelectItem>
                 </SelectContent>
               </Select>
             )} />
