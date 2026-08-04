@@ -66,15 +66,34 @@ export interface Customer {
   createdAt: string;
 }
 
+export type DriverStatus = "Available" | "Assigned" | "On Trip" | "Leave" | "Inactive" | "Off Duty";
+export const DRIVER_STATUSES: DriverStatus[] = ["Available", "Assigned", "On Trip", "Leave", "Inactive"];
+
+export interface DriverDoc {
+  id: string;
+  name: string;
+  type: string;
+  dataUrl?: string;
+  uploadedAt: string;
+}
+
 export interface Driver {
   id: string;
   name: string;
+  employeeId?: string;
   mobile: string;
   license: string;
+  licenseExpiry?: string;
+  nationality?: string;
   truckId?: string;
-  status: "Available" | "On Trip" | "Off Duty";
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  photoUrl?: string;
+  docs?: DriverDoc[];
+  status: DriverStatus;
   joinedAt: string;
 }
+
 
 // ================= Vendor (formerly Supplier) =================
 export type VendorCategory =
@@ -150,9 +169,27 @@ export interface Fleet {
 // Backward-compat alias
 export type Truck = Fleet & { number?: string };
 
-// ================= Work Order v2 =================
+// ================= Work Order v3 (Operations Execution Engine) =================
 export type WorkOrderStatus =
+  // active lifecycle
   | "Draft"
+  | "Operations Started"
+  | "Driver Assigned"
+  | "Fleet Assigned"
+  | "Ready For Pickup"
+  | "Reached Port"
+  | "Inspection"
+  | "X-Ray"
+  | "Container Picked"
+  | "Out From Port"
+  | "Reached Delivery"
+  | "Delivered"
+  | "Ready For Billing"
+  | "Invoice Generated"
+  | "Payment Pending"
+  | "Payment Received"
+  | "Closed"
+  // legacy (kept readable for older stored records)
   | "Submitted"
   | "Under Review"
   | "Pending Approval"
@@ -162,27 +199,15 @@ export type WorkOrderStatus =
   | "Trip Created"
   | "Converted"
   | "Completed"
-  | "Operations Started"
-  | "Driver Assigned"
-  | "Reached Port"
-  | "Inspection"
-  | "X-Ray"
-  | "Container Picked"
-  | "Out From Port"
-  | "Reached Delivery"
-  | "Delivered"
-  | "Invoice Generated"
-  | "Payment Pending"
-  | "Payment Received"
-  | "Closed"
   | "Sent Back"
   | "Rejected";
 
 export const WO_LIFECYCLE: WorkOrderStatus[] = [
   "Draft",
-  "Approved",
   "Operations Started",
   "Driver Assigned",
+  "Fleet Assigned",
+  "Ready For Pickup",
   "Reached Port",
   "Inspection",
   "X-Ray",
@@ -190,6 +215,7 @@ export const WO_LIFECYCLE: WorkOrderStatus[] = [
   "Out From Port",
   "Reached Delivery",
   "Delivered",
+  "Ready For Billing",
   "Invoice Generated",
   "Payment Pending",
   "Payment Received",
@@ -197,6 +223,173 @@ export const WO_LIFECYCLE: WorkOrderStatus[] = [
 ];
 export const WO_STATUS_FLOW: WorkOrderStatus[] = WO_LIFECYCLE;
 
+/** Legacy statuses → nearest stage in the current lifecycle. */
+export const LEGACY_STATUS_MAP: Record<string, WorkOrderStatus> = {
+  Submitted: "Draft",
+  "Under Review": "Draft",
+  "Pending Approval": "Draft",
+  Approved: "Operations Started",
+  "Ready for Operations": "Operations Started",
+  "Dispatch Pending": "Driver Assigned",
+  "Trip Created": "Fleet Assigned",
+  Converted: "Fleet Assigned",
+  Completed: "Delivered",
+  "Sent Back": "Draft",
+  Rejected: "Draft",
+};
+
+export type Department =
+  | "Sales"
+  | "Operations"
+  | "Fleet"
+  | "Accounts"
+  | "Management"
+  | "Support"
+  | "System";
+
+export const ROLE_DEPARTMENT: Record<string, Department> = {
+  "Super Admin": "Management",
+  "Sales Manager": "Sales",
+  "Operations Manager": "Operations",
+  "Accounts Manager": "Accounts",
+  "Driver Manager": "Fleet",
+  "Customer Support": "Support",
+  Viewer: "Support",
+};
+
+// ---- Operations checklist ----
+export const WO_OPS_TASKS = [
+  { key: "deliveryOrder", label: "Delivery Order Received", stage: "Operations Started" },
+  { key: "customsClearance", label: "Customs Clearance Completed", stage: "Operations Started" },
+  { key: "containerAvailable", label: "Container Available", stage: "Operations Started" },
+  { key: "gatePass", label: "Gate Pass Ready", stage: "Ready For Pickup" },
+  { key: "portEntry", label: "Port Entry", stage: "Reached Port" },
+  { key: "inspection", label: "Inspection Completed", stage: "Inspection" },
+  { key: "xray", label: "X-Ray Completed", stage: "X-Ray" },
+  { key: "containerReleased", label: "Container Released", stage: "Container Picked" },
+  { key: "readyForPickup", label: "Ready For Pickup", stage: "Out From Port" },
+] as const;
+export type WOOpsTaskKey = (typeof WO_OPS_TASKS)[number]["key"];
+
+export interface WOOpsTask {
+  key: WOOpsTaskKey;
+  completed: boolean;
+  completedAt?: string;
+  by?: string;
+  department?: Department;
+  remarks?: string;
+}
+
+// ---- Documents ----
+export const WO_DOC_CATEGORIES = [
+  "Delivery Order",
+  "Gate Pass",
+  "Port Receipt",
+  "Inspection Report",
+  "X-Ray Report",
+  "Proof Of Delivery",
+  "Invoice",
+  "Payment Receipt",
+  "Other",
+] as const;
+export type WODocCategory = (typeof WO_DOC_CATEGORIES)[number];
+
+export interface WODoc {
+  id: string;
+  name: string;
+  type: string;
+  category?: WODocCategory;
+  dataUrl?: string;
+  uploadedAt: string;
+  uploadedBy?: string;
+}
+
+// ---- Expenses ----
+export const WO_EXPENSE_CATEGORIES = [
+  "Fuel",
+  "Parking",
+  "Port Charges",
+  "Toll",
+  "Labour",
+  "Miscellaneous",
+] as const;
+export type WOExpenseCategory = (typeof WO_EXPENSE_CATEGORIES)[number];
+
+export interface WOExpenseItem {
+  id: string;
+  date: string;
+  category: string;
+  amount: number;
+  vatPct?: number;
+  vendorId?: string;
+  vendor?: string;
+  receiptUrl?: string;
+  receiptName?: string;
+  notes?: string;
+  by?: string;
+  status?: "Pending" | "Approved" | "Rejected";
+}
+
+// ---- Invoice snapshot on the WO ----
+export type WOInvoiceStatus = "Draft" | "Sent" | "Partial" | "Paid" | "Overdue";
+export interface WOInvoice {
+  invoiceNo: string;
+  date: string;
+  dueDate: string;
+  subtotal: number;
+  vatPct: number;
+  vatAmount: number;
+  total: number;
+  status: WOInvoiceStatus;
+  notes?: string;
+  generatedBy?: string;
+}
+
+// ---- Payments ----
+export const PAYMENT_MODES = ["Cash", "Bank Transfer", "Cheque", "Card", "UPI"] as const;
+export type PaymentMode = (typeof PAYMENT_MODES)[number];
+
+export interface WOPayment {
+  id: string;
+  date: string;
+  amount: number;
+  mode: PaymentMode;
+  reference?: string;
+  receiptNo?: string;
+  by?: string;
+}
+
+// ---- Logs / timeline ----
+export interface WOTimelineEntry {
+  id: string;
+  stage: string;
+  at: string;
+  note?: string;
+  by?: string;
+  department?: Department;
+}
+
+export interface WOActivityLog {
+  id: string;
+  at: string;
+  by: string;
+  action: string;
+  note?: string;
+  department?: Department;
+}
+
+export interface WOAssignmentEntry {
+  id: string;
+  at: string;
+  type: "Driver" | "Fleet";
+  driverId?: string;
+  fleetId?: string;
+  action: "Assigned" | "Replaced" | "Released";
+  by?: string;
+  note?: string;
+}
+
+// legacy shape kept so older persisted records still type-check
 export interface WOOperation {
   id: string;
   stage: WorkOrderStatus;
@@ -205,55 +398,17 @@ export interface WOOperation {
   by?: string;
   note?: string;
 }
-export interface WOPayment {
-  id: string;
-  date: string;
-  amount: number;
-  mode: "Cash" | "Bank Transfer" | "Cheque" | "Card" | "UPI";
-  reference?: string;
-  by?: string;
-}
-export interface WOExpenseItem {
-  id: string;
-  date: string;
-  category: string;
-  amount: number;
-  vendor?: string;
-  notes?: string;
-  by?: string;
-}
-export interface WOTimelineEntry {
-  id: string;
-  stage: WorkOrderStatus;
-  at: string;
-  note?: string;
-  by?: string;
-}
 
 export type WorkOrderPriority = "Low" | "Normal" | "High" | "Urgent";
 export type CargoType = "FCL" | "LCL" | "Bulk" | "Break-Bulk" | "Reefer" | "Hazardous";
 export type ContainerType = "20ft GP" | "40ft GP" | "40ft HC" | "20ft Reefer" | "40ft Reefer" | "Flat Rack" | "Open Top";
 
-export interface WOActivityLog {
-  id: string;
-  at: string;
-  by: string;
-  action: string;
-  note?: string;
-}
 export interface WOApprovalEntry {
   id: string;
   at: string;
   by: string;
   decision: "Submitted" | "Approved" | "Rejected" | "Sent Back";
   note?: string;
-}
-export interface WODoc {
-  id: string;
-  name: string;
-  type: string;
-  dataUrl?: string;
-  uploadedAt: string;
 }
 
 export interface WorkOrder {
@@ -302,6 +457,7 @@ export interface WorkOrder {
   primaryVendorId?: string;
   assignedDriverId?: string;
   assignedFleetId?: string;
+  eta?: string;
 
   // status
   status: WorkOrderStatus;
@@ -309,12 +465,16 @@ export interface WorkOrder {
   remarks?: string;
 
   // WO workspace state
-  ops?: WOOperation[];
+  opsTasks?: WOOpsTask[];
+  opsRemarks?: string;
+  ops?: WOOperation[]; // legacy
   woTimeline?: WOTimelineEntry[];
   woExpenses?: WOExpenseItem[];
   payments?: WOPayment[];
+  invoice?: WOInvoice;
   invoiceNo?: string;
   invoiceGeneratedAt?: string;
+  assignmentHistory?: WOAssignmentEntry[];
 
   // logs
   activityLog?: WOActivityLog[];
@@ -324,6 +484,7 @@ export interface WorkOrder {
   createdAt: string;
   createdBy?: string;
 }
+
 
 export const SHIPMENT_STAGES = [
   "Customs Clearance",
