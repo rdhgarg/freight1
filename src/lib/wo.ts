@@ -82,3 +82,46 @@ export const fileToDataUrl = (file: File) =>
     r.onerror = () => reject(new Error("Could not read file"));
     r.readAsDataURL(file);
   });
+
+/** Approved-expense-only operational cost. */
+export const approvedExpenses = (wo: WorkOrder) =>
+  (wo.woExpenses ?? []).filter((e) => (e.status ?? "Pending") === "Approved");
+
+/**
+ * Business-rule gate for a stage change. Returns an error message, or null when allowed.
+ */
+export const validateStage = (wo: WorkOrder, next: WorkOrderStatus): string | null => {
+  const paid = (wo.payments ?? []).reduce((s, p) => s + p.amount, 0);
+  const total = wo.invoice?.total ?? 0;
+  const tasks = wo.opsTasks ?? [];
+  const doneKeys = tasks.filter((t) => t.completed).map((t) => t.key);
+  switch (next) {
+    case "Driver Assigned":
+      return wo.assignedDriverId ? null : "Assign a driver first (Driver tab).";
+    case "Fleet Assigned":
+      return wo.assignedFleetId ? null : "Assign a vehicle first (Fleet tab).";
+    case "Ready For Pickup":
+      return doneKeys.includes("deliveryOrder") && doneKeys.includes("customsClearance") && doneKeys.includes("gatePass")
+        ? null
+        : "Complete Delivery Order, Customs Clearance and Gate Pass in Operations first.";
+    case "Inspection":
+      return doneKeys.includes("portEntry") ? null : "Mark Port Entry complete in Operations first.";
+    case "X-Ray":
+      return doneKeys.includes("inspection") ? null : "Complete Inspection in Operations first.";
+    case "Container Picked":
+      return doneKeys.includes("xray") ? null : "Complete X-Ray in Operations first.";
+    case "Invoice Generated":
+      return wo.invoice ? null : "Generate the invoice from the Invoice tab first.";
+    case "Payment Pending":
+      return wo.invoice ? null : "An invoice must be issued before payment can be pending.";
+    case "Payment Received":
+      if (!wo.invoice) return "An invoice must be issued first.";
+      return paid >= total && total > 0 ? null : "Record payments covering the invoice total first.";
+    case "Closed":
+      if (stageIndex(wo.status) < stageIndex("Delivered")) return "Delivery must be completed before closing.";
+      if (!wo.invoice) return "An invoice must be issued before closing.";
+      return paid >= total ? null : "Outstanding balance must be settled before closing.";
+    default:
+      return null;
+  }
+};
