@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/page-header";
 import { useData } from "@/stores/data";
-import { inr, fmtDate } from "@/lib/format";
+import { aed, fmtDate } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Edit3, Mail, Phone, MapPin, FileText, UserX, Building2 } from "lucide-react";
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_app/customers/$id/")({
 function CustomerDetail() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const { customers, shipments, invoices, receipts } = useData();
+  const { customers, workOrders, invoices, receipts } = useData();
   const c = customers.find((x) => x.id === id);
 
   if (!c) {
@@ -25,7 +25,7 @@ function CustomerDetail() {
     );
   }
 
-  const custShipments = shipments.filter((s) => s.customerId === id);
+  const custWOs = workOrders.filter((w) => w.customerId === id);
   const custInvoices = invoices.filter((i) => i.customerId === id);
   const custReceipts = receipts.filter((r) => r.customerId === id);
   const outstanding = custInvoices.reduce((sum, i) => sum + (i.total - i.paid), 0);
@@ -42,7 +42,7 @@ function CustomerDetail() {
     <div>
       <PageHeader
         title={c.company}
-        description={`${c.name} · ${c.gst}`}
+        description={`${c.name} · TRN ${c.gst}`}
         actions={
           <>
             <StatusBadge status={c.status} />
@@ -69,48 +69,48 @@ function CustomerDetail() {
             <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Terms</div>
             <dl className="mt-3 space-y-2 text-sm">
               <div className="flex justify-between"><dt className="text-muted-foreground">Payment Terms</dt><dd>{c.paymentTerms}</dd></div>
-              <div className="flex justify-between"><dt className="text-muted-foreground">Credit Limit</dt><dd className="font-medium">{inr(c.creditLimit)}</dd></div>
-              <div className="flex justify-between"><dt className="text-muted-foreground">Outstanding</dt><dd className={outstanding > 0 ? "text-destructive font-medium" : ""}>{inr(outstanding)}</dd></div>
-              <div className="flex justify-between"><dt className="text-muted-foreground">Total Billed</dt><dd className="font-medium">{inr(totalBilled)}</dd></div>
+              <div className="flex justify-between"><dt className="text-muted-foreground">Credit Limit</dt><dd className="font-medium">{aed(c.creditLimit)}</dd></div>
+              <div className="flex justify-between"><dt className="text-muted-foreground">Outstanding</dt><dd className={outstanding > 0 ? "text-destructive font-medium" : ""}>{aed(outstanding)}</dd></div>
+              <div className="flex justify-between"><dt className="text-muted-foreground">Total Billed</dt><dd className="font-medium">{aed(totalBilled)}</dd></div>
             </dl>
           </div>
         </div>
 
         <div className="lg:col-span-3">
-          <Tabs defaultValue="shipments">
+          <Tabs defaultValue="workOrders">
             <TabsList>
-              <TabsTrigger value="shipments">Shipments ({custShipments.length})</TabsTrigger>
+              <TabsTrigger value="workOrders">Work Orders ({custWOs.length})</TabsTrigger>
               <TabsTrigger value="ledger">Ledger</TabsTrigger>
               <TabsTrigger value="invoices">Invoices ({custInvoices.length})</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="shipments" className="mt-4">
+            <TabsContent value="workOrders" className="mt-4">
               <div className="card-elevated overflow-hidden">
-                {custShipments.length === 0 ? (
-                  <EmptyState icon={FileText} title="No shipments yet" />
+                {custWOs.length === 0 ? (
+                  <EmptyState icon={FileText} title="No work orders yet" />
                 ) : (
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left text-[11px] uppercase text-muted-foreground border-b border-border">
-                        <th className="px-4 py-3 font-medium">Shipment</th>
+                        <th className="px-4 py-3 font-medium">Work Order</th>
                         <th className="px-4 py-3 font-medium">Route</th>
-                        <th className="px-4 py-3 font-medium">Amount</th>
+                        <th className="px-4 py-3 font-medium">Value</th>
                         <th className="px-4 py-3 font-medium">Status</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {custShipments.map((s) => (
-                        <tr key={s.id} className="border-b border-border/60 last:border-0">
+                      {custWOs.map((w) => (
+                        <tr key={w.id} className="border-b border-border/60 last:border-0">
                           <td className="px-4 py-3">
-                            <Link to="/shipments/$id" params={{ id: s.id }} className="text-primary hover:underline font-medium">{s.shipmentNo}</Link>
-                            <div className="text-[11px] text-muted-foreground">{fmtDate(s.createdAt)}</div>
+                            <Link to="/work-orders/$id" params={{ id: w.id }} className="text-primary hover:underline font-medium">{w.woNumber}</Link>
+                            <div className="text-[11px] text-muted-foreground">{fmtDate(w.createdAt)}</div>
                           </td>
                           <td className="px-4 py-3 text-xs">
-                            <div className="truncate max-w-[200px]">{s.pickup}</div>
-                            <div className="truncate max-w-[200px] text-muted-foreground">→ {s.delivery}</div>
+                            <div className="truncate max-w-[200px]">{w.pickup}</div>
+                            <div className="truncate max-w-[200px] text-muted-foreground">→ {w.delivery}</div>
                           </td>
-                          <td className="px-4 py-3 font-medium">{inr(s.amount)}</td>
-                          <td className="px-4 py-3"><StatusBadge status={s.stage} /></td>
+                          <td className="px-4 py-3 font-medium">{aed(w.containers * w.rate)}</td>
+                          <td className="px-4 py-3"><StatusBadge status={w.status} /></td>
                         </tr>
                       ))}
                     </tbody>
@@ -118,6 +118,7 @@ function CustomerDetail() {
                 )}
               </div>
             </TabsContent>
+
 
             <TabsContent value="ledger" className="mt-4">
               <div className="card-elevated overflow-hidden">
@@ -139,9 +140,9 @@ function CustomerDetail() {
                           <tr key={i} className="border-b border-border/60 last:border-0">
                             <td className="px-4 py-3 whitespace-nowrap">{fmtDate(row.date)}</td>
                             <td className="px-4 py-3">{row.kind} · <span className="font-medium">{row.ref}</span></td>
-                            <td className="px-4 py-3 text-right">{row.debit ? inr(row.debit) : "—"}</td>
-                            <td className="px-4 py-3 text-right">{row.credit ? inr(row.credit) : "—"}</td>
-                            <td className="px-4 py-3 text-right font-medium">{inr(bal)}</td>
+                            <td className="px-4 py-3 text-right">{row.debit ? aed(row.debit) : "—"}</td>
+                            <td className="px-4 py-3 text-right">{row.credit ? aed(row.credit) : "—"}</td>
+                            <td className="px-4 py-3 text-right font-medium">{aed(bal)}</td>
                           </tr>
                         );
                       })}
@@ -171,8 +172,8 @@ function CustomerDetail() {
                           <td className="px-4 py-3 font-medium">{i.invoiceNo}</td>
                           <td className="px-4 py-3">{fmtDate(i.date)}</td>
                           <td className="px-4 py-3">{fmtDate(i.dueDate)}</td>
-                          <td className="px-4 py-3 text-right">{inr(i.total)}</td>
-                          <td className="px-4 py-3 text-right">{inr(i.paid)}</td>
+                          <td className="px-4 py-3 text-right">{aed(i.total)}</td>
+                          <td className="px-4 py-3 text-right">{aed(i.paid)}</td>
                           <td className="px-4 py-3"><StatusBadge status={i.status} /></td>
                         </tr>
                       ))}

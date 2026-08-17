@@ -29,9 +29,10 @@ export function PageHeader({
 }
 
 export function StatCard({
-  label, value, delta, icon: Icon, to, tone = "primary",
+  label, value, delta, icon: Icon, to, search, tone = "primary",
 }: {
   label: string; value: string; delta?: string; icon: LucideIcon; to?: string;
+  search?: Record<string, string>;
   tone?: "primary" | "success" | "warning" | "info" | "destructive";
 }) {
   const toneMap: Record<string, string> = {
