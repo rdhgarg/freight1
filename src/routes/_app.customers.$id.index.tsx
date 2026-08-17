@@ -77,40 +77,40 @@ function CustomerDetail() {
         </div>
 
         <div className="lg:col-span-3">
-          <Tabs defaultValue="shipments">
+          <Tabs defaultValue="workOrders">
             <TabsList>
-              <TabsTrigger value="shipments">Shipments ({custShipments.length})</TabsTrigger>
+              <TabsTrigger value="workOrders">Work Orders ({custWOs.length})</TabsTrigger>
               <TabsTrigger value="ledger">Ledger</TabsTrigger>
               <TabsTrigger value="invoices">Invoices ({custInvoices.length})</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="shipments" className="mt-4">
+            <TabsContent value="workOrders" className="mt-4">
               <div className="card-elevated overflow-hidden">
-                {custShipments.length === 0 ? (
-                  <EmptyState icon={FileText} title="No shipments yet" />
+                {custWOs.length === 0 ? (
+                  <EmptyState icon={FileText} title="No work orders yet" />
                 ) : (
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left text-[11px] uppercase text-muted-foreground border-b border-border">
-                        <th className="px-4 py-3 font-medium">Shipment</th>
+                        <th className="px-4 py-3 font-medium">Work Order</th>
                         <th className="px-4 py-3 font-medium">Route</th>
-                        <th className="px-4 py-3 font-medium">Amount</th>
+                        <th className="px-4 py-3 font-medium">Value</th>
                         <th className="px-4 py-3 font-medium">Status</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {custShipments.map((s) => (
-                        <tr key={s.id} className="border-b border-border/60 last:border-0">
+                      {custWOs.map((w) => (
+                        <tr key={w.id} className="border-b border-border/60 last:border-0">
                           <td className="px-4 py-3">
-                            <Link to="/shipments/$id" params={{ id: s.id }} className="text-primary hover:underline font-medium">{s.shipmentNo}</Link>
-                            <div className="text-[11px] text-muted-foreground">{fmtDate(s.createdAt)}</div>
+                            <Link to="/work-orders/$id" params={{ id: w.id }} className="text-primary hover:underline font-medium">{w.woNumber}</Link>
+                            <div className="text-[11px] text-muted-foreground">{fmtDate(w.createdAt)}</div>
                           </td>
                           <td className="px-4 py-3 text-xs">
-                            <div className="truncate max-w-[200px]">{s.pickup}</div>
-                            <div className="truncate max-w-[200px] text-muted-foreground">→ {s.delivery}</div>
+                            <div className="truncate max-w-[200px]">{w.pickup}</div>
+                            <div className="truncate max-w-[200px] text-muted-foreground">→ {w.delivery}</div>
                           </td>
-                          <td className="px-4 py-3 font-medium">{inr(s.amount)}</td>
-                          <td className="px-4 py-3"><StatusBadge status={s.stage} /></td>
+                          <td className="px-4 py-3 font-medium">{aed(w.containers * w.rate)}</td>
+                          <td className="px-4 py-3"><StatusBadge status={w.status} /></td>
                         </tr>
                       ))}
                     </tbody>
@@ -118,6 +118,7 @@ function CustomerDetail() {
                 )}
               </div>
             </TabsContent>
+
 
             <TabsContent value="ledger" className="mt-4">
               <div className="card-elevated overflow-hidden">
