@@ -16,10 +16,9 @@ const LABELS: Record<string, string> = {
   dashboard: "Dashboard",
   customers: "Customers",
   drivers: "Drivers",
-  suppliers: "Suppliers",
+  vendors: "Vendors",
+  fleet: "Fleet",
   "work-orders": "Work Orders",
-  shipments: "Shipments",
-  trucks: "Trucks",
   expenses: "Expenses",
   purchases: "Purchases",
   invoices: "Invoices",
@@ -81,7 +80,7 @@ export function Topbar() {
       <div className="ml-auto flex items-center gap-2">
         <div className="relative hidden md:block">
           <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search shipments, customers…" className="w-72 pl-8" onKeyDown={(e) => {
+          <Input placeholder="Search work orders, vendors…" className="w-72 pl-8" onKeyDown={(e) => {
             if (e.key === "Enter") toast.info("Global search coming soon");
           }} />
         </div>
