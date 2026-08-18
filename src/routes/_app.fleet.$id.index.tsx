@@ -14,11 +14,11 @@ export const Route = createFileRoute("/_app/fleet/$id/")({
 function FleetDetail() {
   const { id } = Route.useParams();
   const nav = useNavigate();
-  const { fleet, drivers, shipments } = useData();
+  const { fleet, drivers, workOrders } = useData();
   const f = fleet.find((x) => x.id === id);
   if (!f) return <div className="card-elevated p-6"><EmptyState icon={FileX} title="Vehicle not found" action={<Button onClick={() => nav({ to: "/fleet" })}>Back</Button>} /></div>;
   const driver = drivers.find((d) => d.id === f.driverId);
-  const trips = shipments.filter((s) => s.truckId === id);
+  const trips = workOrders.filter((w) => w.assignedFleetId === id);
 
   const expiryRow = (label: string, iso?: string) => {
     if (!iso) return <div className="flex justify-between"><dt className="text-muted-foreground">{label}</dt><dd>—</dd></div>;
