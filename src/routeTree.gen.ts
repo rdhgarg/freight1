@@ -14,7 +14,6 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AuthForgotRouteImport } from './routes/auth.forgot'
-import { Route as AppShipmentsRouteImport } from './routes/_app.shipments'
 import { Route as AppReceiptsRouteImport } from './routes/_app.receipts'
 import { Route as AppPurchasesRouteImport } from './routes/_app.purchases'
 import { Route as AppOutstandingRouteImport } from './routes/_app.outstanding'
@@ -22,7 +21,6 @@ import { Route as AppLedgersRouteImport } from './routes/_app.ledgers'
 import { Route as AppJournalRouteImport } from './routes/_app.journal'
 import { Route as AppInvoicesRouteImport } from './routes/_app.invoices'
 import { Route as AppExpensesRouteImport } from './routes/_app.expenses'
-import { Route as AppDriversRouteImport } from './routes/_app.drivers'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppWorkOrdersIndexRouteImport } from './routes/_app.work-orders.index'
 import { Route as AppVendorsIndexRouteImport } from './routes/_app.vendors.index'
@@ -75,11 +73,6 @@ const AuthForgotRoute = AuthForgotRouteImport.update({
   path: '/forgot',
   getParentRoute: () => AuthRoute,
 } as any)
-const AppShipmentsRoute = AppShipmentsRouteImport.update({
-  id: '/shipments',
-  path: '/shipments',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppReceiptsRoute = AppReceiptsRouteImport.update({
   id: '/receipts',
   path: '/receipts',
@@ -115,11 +108,6 @@ const AppExpensesRoute = AppExpensesRouteImport.update({
   path: '/expenses',
   getParentRoute: () => AppRoute,
 } as any)
-const AppDriversRoute = AppDriversRouteImport.update({
-  id: '/drivers',
-  path: '/drivers',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -151,9 +139,9 @@ const AppFleetIndexRoute = AppFleetIndexRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AppDriversIndexRoute = AppDriversIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppDriversRoute,
+  id: '/drivers/',
+  path: '/drivers/',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppCustomersIndexRoute = AppCustomersIndexRouteImport.update({
   id: '/customers/',
@@ -197,9 +185,9 @@ const AppFleetNewRoute = AppFleetNewRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AppDriversNewRoute = AppDriversNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AppDriversRoute,
+  id: '/drivers/new',
+  path: '/drivers/new',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppCustomersNewRoute = AppCustomersNewRouteImport.update({
   id: '/customers/new',
@@ -222,9 +210,9 @@ const AppFleetIdIndexRoute = AppFleetIdIndexRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AppDriversIdIndexRoute = AppDriversIdIndexRouteImport.update({
-  id: '/$id/',
-  path: '/$id/',
-  getParentRoute: () => AppDriversRoute,
+  id: '/drivers/$id/',
+  path: '/drivers/$id/',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppCustomersIdIndexRoute = AppCustomersIdIndexRouteImport.update({
   id: '/customers/$id/',
@@ -247,9 +235,9 @@ const AppFleetIdEditRoute = AppFleetIdEditRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AppDriversIdEditRoute = AppDriversIdEditRouteImport.update({
-  id: '/$id/edit',
-  path: '/$id/edit',
-  getParentRoute: () => AppDriversRoute,
+  id: '/drivers/$id/edit',
+  path: '/drivers/$id/edit',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppCustomersIdEditRoute = AppCustomersIdEditRouteImport.update({
   id: '/customers/$id/edit',
@@ -261,7 +249,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
-  '/drivers': typeof AppDriversRouteWithChildren
   '/expenses': typeof AppExpensesRoute
   '/invoices': typeof AppInvoicesRoute
   '/journal': typeof AppJournalRoute
@@ -269,7 +256,6 @@ export interface FileRoutesByFullPath {
   '/outstanding': typeof AppOutstandingRoute
   '/purchases': typeof AppPurchasesRoute
   '/receipts': typeof AppReceiptsRoute
-  '/shipments': typeof AppShipmentsRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
   '/customers/new': typeof AppCustomersNewRoute
@@ -310,7 +296,6 @@ export interface FileRoutesByTo {
   '/outstanding': typeof AppOutstandingRoute
   '/purchases': typeof AppPurchasesRoute
   '/receipts': typeof AppReceiptsRoute
-  '/shipments': typeof AppShipmentsRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
   '/customers/new': typeof AppCustomersNewRoute
@@ -346,7 +331,6 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
-  '/_app/drivers': typeof AppDriversRouteWithChildren
   '/_app/expenses': typeof AppExpensesRoute
   '/_app/invoices': typeof AppInvoicesRoute
   '/_app/journal': typeof AppJournalRoute
@@ -354,7 +338,6 @@ export interface FileRoutesById {
   '/_app/outstanding': typeof AppOutstandingRoute
   '/_app/purchases': typeof AppPurchasesRoute
   '/_app/receipts': typeof AppReceiptsRoute
-  '/_app/shipments': typeof AppShipmentsRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
   '/_app/customers/new': typeof AppCustomersNewRoute
@@ -390,7 +373,6 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
-    | '/drivers'
     | '/expenses'
     | '/invoices'
     | '/journal'
@@ -398,7 +380,6 @@ export interface FileRouteTypes {
     | '/outstanding'
     | '/purchases'
     | '/receipts'
-    | '/shipments'
     | '/auth/forgot'
     | '/auth/reset'
     | '/customers/new'
@@ -439,7 +420,6 @@ export interface FileRouteTypes {
     | '/outstanding'
     | '/purchases'
     | '/receipts'
-    | '/shipments'
     | '/auth/forgot'
     | '/auth/reset'
     | '/customers/new'
@@ -474,7 +454,6 @@ export interface FileRouteTypes {
     | '/_app'
     | '/auth'
     | '/_app/dashboard'
-    | '/_app/drivers'
     | '/_app/expenses'
     | '/_app/invoices'
     | '/_app/journal'
@@ -482,7 +461,6 @@ export interface FileRouteTypes {
     | '/_app/outstanding'
     | '/_app/purchases'
     | '/_app/receipts'
-    | '/_app/shipments'
     | '/auth/forgot'
     | '/auth/reset'
     | '/_app/customers/new'
@@ -556,13 +534,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_app/shipments': {
-      id: '/_app/shipments'
-      path: '/shipments'
-      fullPath: '/shipments'
-      preLoaderRoute: typeof AppShipmentsRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/receipts': {
       id: '/_app/receipts'
       path: '/receipts'
@@ -612,13 +583,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppExpensesRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/drivers': {
-      id: '/_app/drivers'
-      path: '/drivers'
-      fullPath: '/drivers'
-      preLoaderRoute: typeof AppDriversRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -663,10 +627,10 @@ declare module '@tanstack/react-router' {
     }
     '/_app/drivers/': {
       id: '/_app/drivers/'
-      path: '/'
+      path: '/drivers'
       fullPath: '/drivers/'
       preLoaderRoute: typeof AppDriversIndexRouteImport
-      parentRoute: typeof AppDriversRoute
+      parentRoute: typeof AppRoute
     }
     '/_app/customers/': {
       id: '/_app/customers/'
@@ -726,10 +690,10 @@ declare module '@tanstack/react-router' {
     }
     '/_app/drivers/new': {
       id: '/_app/drivers/new'
-      path: '/new'
+      path: '/drivers/new'
       fullPath: '/drivers/new'
       preLoaderRoute: typeof AppDriversNewRouteImport
-      parentRoute: typeof AppDriversRoute
+      parentRoute: typeof AppRoute
     }
     '/_app/customers/new': {
       id: '/_app/customers/new'
@@ -761,10 +725,10 @@ declare module '@tanstack/react-router' {
     }
     '/_app/drivers/$id/': {
       id: '/_app/drivers/$id/'
-      path: '/$id'
+      path: '/drivers/$id'
       fullPath: '/drivers/$id/'
       preLoaderRoute: typeof AppDriversIdIndexRouteImport
-      parentRoute: typeof AppDriversRoute
+      parentRoute: typeof AppRoute
     }
     '/_app/customers/$id/': {
       id: '/_app/customers/$id/'
@@ -796,10 +760,10 @@ declare module '@tanstack/react-router' {
     }
     '/_app/drivers/$id/edit': {
       id: '/_app/drivers/$id/edit'
-      path: '/$id/edit'
+      path: '/drivers/$id/edit'
       fullPath: '/drivers/$id/edit'
       preLoaderRoute: typeof AppDriversIdEditRouteImport
-      parentRoute: typeof AppDriversRoute
+      parentRoute: typeof AppRoute
     }
     '/_app/customers/$id/edit': {
       id: '/_app/customers/$id/edit'
@@ -811,27 +775,8 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AppDriversRouteChildren {
-  AppDriversNewRoute: typeof AppDriversNewRoute
-  AppDriversIndexRoute: typeof AppDriversIndexRoute
-  AppDriversIdEditRoute: typeof AppDriversIdEditRoute
-  AppDriversIdIndexRoute: typeof AppDriversIdIndexRoute
-}
-
-const AppDriversRouteChildren: AppDriversRouteChildren = {
-  AppDriversNewRoute: AppDriversNewRoute,
-  AppDriversIndexRoute: AppDriversIndexRoute,
-  AppDriversIdEditRoute: AppDriversIdEditRoute,
-  AppDriversIdIndexRoute: AppDriversIdIndexRoute,
-}
-
-const AppDriversRouteWithChildren = AppDriversRoute._addFileChildren(
-  AppDriversRouteChildren,
-)
-
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
-  AppDriversRoute: typeof AppDriversRouteWithChildren
   AppExpensesRoute: typeof AppExpensesRoute
   AppInvoicesRoute: typeof AppInvoicesRoute
   AppJournalRoute: typeof AppJournalRoute
@@ -839,8 +784,8 @@ interface AppRouteChildren {
   AppOutstandingRoute: typeof AppOutstandingRoute
   AppPurchasesRoute: typeof AppPurchasesRoute
   AppReceiptsRoute: typeof AppReceiptsRoute
-  AppShipmentsRoute: typeof AppShipmentsRoute
   AppCustomersNewRoute: typeof AppCustomersNewRoute
+  AppDriversNewRoute: typeof AppDriversNewRoute
   AppFleetNewRoute: typeof AppFleetNewRoute
   AppProfileChangePasswordRoute: typeof AppProfileChangePasswordRoute
   AppSettingsCompanyRoute: typeof AppSettingsCompanyRoute
@@ -849,16 +794,19 @@ interface AppRouteChildren {
   AppVendorsNewRoute: typeof AppVendorsNewRoute
   AppWorkOrdersNewRoute: typeof AppWorkOrdersNewRoute
   AppCustomersIndexRoute: typeof AppCustomersIndexRoute
+  AppDriversIndexRoute: typeof AppDriversIndexRoute
   AppFleetIndexRoute: typeof AppFleetIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
   AppVendorsIndexRoute: typeof AppVendorsIndexRoute
   AppWorkOrdersIndexRoute: typeof AppWorkOrdersIndexRoute
   AppCustomersIdEditRoute: typeof AppCustomersIdEditRoute
+  AppDriversIdEditRoute: typeof AppDriversIdEditRoute
   AppFleetIdEditRoute: typeof AppFleetIdEditRoute
   AppVendorsIdEditRoute: typeof AppVendorsIdEditRoute
   AppWorkOrdersIdEditRoute: typeof AppWorkOrdersIdEditRoute
   AppCustomersIdIndexRoute: typeof AppCustomersIdIndexRoute
+  AppDriversIdIndexRoute: typeof AppDriversIdIndexRoute
   AppFleetIdIndexRoute: typeof AppFleetIdIndexRoute
   AppVendorsIdIndexRoute: typeof AppVendorsIdIndexRoute
   AppWorkOrdersIdIndexRoute: typeof AppWorkOrdersIdIndexRoute
@@ -866,7 +814,6 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
-  AppDriversRoute: AppDriversRouteWithChildren,
   AppExpensesRoute: AppExpensesRoute,
   AppInvoicesRoute: AppInvoicesRoute,
   AppJournalRoute: AppJournalRoute,
@@ -874,8 +821,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppOutstandingRoute: AppOutstandingRoute,
   AppPurchasesRoute: AppPurchasesRoute,
   AppReceiptsRoute: AppReceiptsRoute,
-  AppShipmentsRoute: AppShipmentsRoute,
   AppCustomersNewRoute: AppCustomersNewRoute,
+  AppDriversNewRoute: AppDriversNewRoute,
   AppFleetNewRoute: AppFleetNewRoute,
   AppProfileChangePasswordRoute: AppProfileChangePasswordRoute,
   AppSettingsCompanyRoute: AppSettingsCompanyRoute,
@@ -884,16 +831,19 @@ const AppRouteChildren: AppRouteChildren = {
   AppVendorsNewRoute: AppVendorsNewRoute,
   AppWorkOrdersNewRoute: AppWorkOrdersNewRoute,
   AppCustomersIndexRoute: AppCustomersIndexRoute,
+  AppDriversIndexRoute: AppDriversIndexRoute,
   AppFleetIndexRoute: AppFleetIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
   AppVendorsIndexRoute: AppVendorsIndexRoute,
   AppWorkOrdersIndexRoute: AppWorkOrdersIndexRoute,
   AppCustomersIdEditRoute: AppCustomersIdEditRoute,
+  AppDriversIdEditRoute: AppDriversIdEditRoute,
   AppFleetIdEditRoute: AppFleetIdEditRoute,
   AppVendorsIdEditRoute: AppVendorsIdEditRoute,
   AppWorkOrdersIdEditRoute: AppWorkOrdersIdEditRoute,
   AppCustomersIdIndexRoute: AppCustomersIdIndexRoute,
+  AppDriversIdIndexRoute: AppDriversIdIndexRoute,
   AppFleetIdIndexRoute: AppFleetIdIndexRoute,
   AppVendorsIdIndexRoute: AppVendorsIdIndexRoute,
   AppWorkOrdersIdIndexRoute: AppWorkOrdersIdIndexRoute,
