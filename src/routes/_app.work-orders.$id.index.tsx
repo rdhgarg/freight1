@@ -1,11 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 import { PageHeader, StatusBadge, EmptyState } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { useData } from "@/stores/data";
 import { aed, fmtDate } from "@/lib/format";
-import { useCurrentUser } from "@/stores/auth";
 import { woMoney, progressPct, stageIndex } from "@/lib/wo";
 import { OperationsTab, DriverTab, FleetTab } from "@/components/wo/tabs-operations";
 import { TimelineTab, DocumentsTab, ActivityTab } from "@/components/wo/tabs-records";
@@ -24,7 +24,6 @@ export const Route = createFileRoute("/_app/work-orders/$id/")({
 function WODetail() {
   const { id } = Route.useParams();
   const nav = useNavigate();
-  const user = useCurrentUser();
   const { workOrders, customers, vendors, drivers, fleet } = useData();
   const wo = workOrders.find((w) => w.id === id);
   if (!wo) {
@@ -166,7 +165,7 @@ function WODetail() {
   );
 }
 
-function Row({ k, v }: { k: string; v: React.ReactNode }) {
+function Row({ k, v }: { k: string; v: ReactNode }) {
   return (
     <div className="flex justify-between gap-2">
       <dt className="text-muted-foreground">{k}</dt>
