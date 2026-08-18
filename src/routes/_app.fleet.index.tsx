@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_app/fleet/")({
 
 function FleetList() {
   const nav = useNavigate();
-  const { fleet, drivers, shipments } = useData();
+  const { fleet, drivers, workOrders } = useData();
   const [q, setQ] = useState("");
   const [type, setType] = useState("All");
   const [status, setStatus] = useState("All");
@@ -70,12 +70,12 @@ function FleetList() {
                 <th className="px-4 py-3 font-medium">Registration</th><th className="px-4 py-3 font-medium">Type</th><th className="px-4 py-3 font-medium text-right">Cap.</th>
                 <th className="px-4 py-3 font-medium">Ownership</th><th className="px-4 py-3 font-medium">Driver</th>
                 <th className="px-4 py-3 font-medium">Insurance</th><th className="px-4 py-3 font-medium">Fitness</th>
-                <th className="px-4 py-3 font-medium text-right">Trips</th><th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium text-right">WOs</th><th className="px-4 py-3 font-medium">Status</th>
               </tr></thead>
               <tbody>
                 {rows.map((f) => {
                   const drv = drivers.find((d) => d.id === f.driverId);
-                  const trips = shipments.filter((s) => s.truckId === f.id).length;
+                  const trips = workOrders.filter((w) => w.assignedFleetId === f.id).length;
                   const insExp = isExpiringSoon(f.insuranceExpiry);
                   const fitExp = isExpiringSoon(f.fitnessExpiry);
                   return (
