@@ -66,23 +66,23 @@ function FleetDetail() {
         <div className="lg:col-span-3">
           <Tabs defaultValue="trips">
             <TabsList>
-              <TabsTrigger value="trips">Trips ({trips.length})</TabsTrigger>
+              <TabsTrigger value="trips">Work Orders ({trips.length})</TabsTrigger>
               <TabsTrigger value="maintenance" disabled>Maintenance</TabsTrigger>
               <TabsTrigger value="expenses" disabled>Expenses</TabsTrigger>
             </TabsList>
             <TabsContent value="trips" className="mt-4">
               <div className="card-elevated overflow-hidden">
-                {trips.length === 0 ? <EmptyState icon={Truck} title="No trips yet" /> : (
+                {trips.length === 0 ? <EmptyState icon={Truck} title="No work orders yet" /> : (
                   <table className="w-full text-sm">
                     <thead><tr className="text-left text-[11px] uppercase text-muted-foreground border-b border-border">
-                      <th className="px-4 py-3 font-medium">Shipment</th><th className="px-4 py-3 font-medium">Route</th><th className="px-4 py-3 font-medium">Stage</th><th className="px-4 py-3 font-medium">Created</th>
+                      <th className="px-4 py-3 font-medium">Work Order</th><th className="px-4 py-3 font-medium">Route</th><th className="px-4 py-3 font-medium">Status</th><th className="px-4 py-3 font-medium">Created</th>
                     </tr></thead>
                     <tbody>
                       {trips.map((s) => (
                         <tr key={s.id} className="border-b border-border/60 last:border-0">
-                          <td className="px-4 py-3"><Link to="/shipments" className="text-primary hover:underline font-medium">{s.shipmentNo}</Link></td>
+                          <td className="px-4 py-3"><Link to="/work-orders/$id" params={{ id: s.id }} className="text-primary hover:underline font-medium">{s.woNumber}</Link></td>
                           <td className="px-4 py-3 text-xs truncate max-w-[220px]">{s.pickup} → {s.delivery}</td>
-                          <td className="px-4 py-3"><StatusBadge status={s.stage} /></td>
+                          <td className="px-4 py-3"><StatusBadge status={s.status} /></td>
                           <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{fmtDate(s.createdAt)}</td>
                         </tr>
                       ))}
