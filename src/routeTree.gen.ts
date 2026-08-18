@@ -43,6 +43,7 @@ import { Route as AppCustomersNewRouteImport } from './routes/_app.customers.new
 import { Route as AppWorkOrdersIdIndexRouteImport } from './routes/_app.work-orders.$id.index'
 import { Route as AppVendorsIdIndexRouteImport } from './routes/_app.vendors.$id.index'
 import { Route as AppFleetIdIndexRouteImport } from './routes/_app.fleet.$id.index'
+import { Route as AppDriversIdIndexRouteImport } from './routes/_app.drivers.$id.index'
 import { Route as AppCustomersIdIndexRouteImport } from './routes/_app.customers.$id.index'
 import { Route as AppWorkOrdersIdEditRouteImport } from './routes/_app.work-orders.$id.edit'
 import { Route as AppVendorsIdEditRouteImport } from './routes/_app.vendors.$id.edit'
@@ -220,6 +221,11 @@ const AppFleetIdIndexRoute = AppFleetIdIndexRouteImport.update({
   path: '/fleet/$id/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDriversIdIndexRoute = AppDriversIdIndexRouteImport.update({
+  id: '/$id/',
+  path: '/$id/',
+  getParentRoute: () => AppDriversRoute,
+} as any)
 const AppCustomersIdIndexRoute = AppCustomersIdIndexRouteImport.update({
   id: '/customers/$id/',
   path: '/customers/$id/',
@@ -288,6 +294,7 @@ export interface FileRoutesByFullPath {
   '/vendors/$id/edit': typeof AppVendorsIdEditRoute
   '/work-orders/$id/edit': typeof AppWorkOrdersIdEditRoute
   '/customers/$id/': typeof AppCustomersIdIndexRoute
+  '/drivers/$id/': typeof AppDriversIdIndexRoute
   '/fleet/$id/': typeof AppFleetIdIndexRoute
   '/vendors/$id/': typeof AppVendorsIdIndexRoute
   '/work-orders/$id/': typeof AppWorkOrdersIdIndexRoute
@@ -328,6 +335,7 @@ export interface FileRoutesByTo {
   '/vendors/$id/edit': typeof AppVendorsIdEditRoute
   '/work-orders/$id/edit': typeof AppWorkOrdersIdEditRoute
   '/customers/$id': typeof AppCustomersIdIndexRoute
+  '/drivers/$id': typeof AppDriversIdIndexRoute
   '/fleet/$id': typeof AppFleetIdIndexRoute
   '/vendors/$id': typeof AppVendorsIdIndexRoute
   '/work-orders/$id': typeof AppWorkOrdersIdIndexRoute
@@ -371,6 +379,7 @@ export interface FileRoutesById {
   '/_app/vendors/$id/edit': typeof AppVendorsIdEditRoute
   '/_app/work-orders/$id/edit': typeof AppWorkOrdersIdEditRoute
   '/_app/customers/$id/': typeof AppCustomersIdIndexRoute
+  '/_app/drivers/$id/': typeof AppDriversIdIndexRoute
   '/_app/fleet/$id/': typeof AppFleetIdIndexRoute
   '/_app/vendors/$id/': typeof AppVendorsIdIndexRoute
   '/_app/work-orders/$id/': typeof AppWorkOrdersIdIndexRoute
@@ -414,6 +423,7 @@ export interface FileRouteTypes {
     | '/vendors/$id/edit'
     | '/work-orders/$id/edit'
     | '/customers/$id/'
+    | '/drivers/$id/'
     | '/fleet/$id/'
     | '/vendors/$id/'
     | '/work-orders/$id/'
@@ -454,6 +464,7 @@ export interface FileRouteTypes {
     | '/vendors/$id/edit'
     | '/work-orders/$id/edit'
     | '/customers/$id'
+    | '/drivers/$id'
     | '/fleet/$id'
     | '/vendors/$id'
     | '/work-orders/$id'
@@ -496,6 +507,7 @@ export interface FileRouteTypes {
     | '/_app/vendors/$id/edit'
     | '/_app/work-orders/$id/edit'
     | '/_app/customers/$id/'
+    | '/_app/drivers/$id/'
     | '/_app/fleet/$id/'
     | '/_app/vendors/$id/'
     | '/_app/work-orders/$id/'
@@ -747,6 +759,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFleetIdIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/drivers/$id/': {
+      id: '/_app/drivers/$id/'
+      path: '/$id'
+      fullPath: '/drivers/$id/'
+      preLoaderRoute: typeof AppDriversIdIndexRouteImport
+      parentRoute: typeof AppDriversRoute
+    }
     '/_app/customers/$id/': {
       id: '/_app/customers/$id/'
       path: '/customers/$id'
@@ -796,12 +815,14 @@ interface AppDriversRouteChildren {
   AppDriversNewRoute: typeof AppDriversNewRoute
   AppDriversIndexRoute: typeof AppDriversIndexRoute
   AppDriversIdEditRoute: typeof AppDriversIdEditRoute
+  AppDriversIdIndexRoute: typeof AppDriversIdIndexRoute
 }
 
 const AppDriversRouteChildren: AppDriversRouteChildren = {
   AppDriversNewRoute: AppDriversNewRoute,
   AppDriversIndexRoute: AppDriversIndexRoute,
   AppDriversIdEditRoute: AppDriversIdEditRoute,
+  AppDriversIdIndexRoute: AppDriversIdIndexRoute,
 }
 
 const AppDriversRouteWithChildren = AppDriversRoute._addFileChildren(
