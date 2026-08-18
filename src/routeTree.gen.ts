@@ -38,6 +38,7 @@ import { Route as AppSettingsRolesRouteImport } from './routes/_app.settings.rol
 import { Route as AppSettingsCompanyRouteImport } from './routes/_app.settings.company'
 import { Route as AppProfileChangePasswordRouteImport } from './routes/_app.profile.change-password'
 import { Route as AppFleetNewRouteImport } from './routes/_app.fleet.new'
+import { Route as AppDriversNewRouteImport } from './routes/_app.drivers.new'
 import { Route as AppCustomersNewRouteImport } from './routes/_app.customers.new'
 import { Route as AppWorkOrdersIdIndexRouteImport } from './routes/_app.work-orders.$id.index'
 import { Route as AppVendorsIdIndexRouteImport } from './routes/_app.vendors.$id.index'
@@ -46,6 +47,7 @@ import { Route as AppCustomersIdIndexRouteImport } from './routes/_app.customers
 import { Route as AppWorkOrdersIdEditRouteImport } from './routes/_app.work-orders.$id.edit'
 import { Route as AppVendorsIdEditRouteImport } from './routes/_app.vendors.$id.edit'
 import { Route as AppFleetIdEditRouteImport } from './routes/_app.fleet.$id.edit'
+import { Route as AppDriversIdEditRouteImport } from './routes/_app.drivers.$id.edit'
 import { Route as AppCustomersIdEditRouteImport } from './routes/_app.customers.$id.edit'
 
 const AuthRoute = AuthRouteImport.update({
@@ -193,6 +195,11 @@ const AppFleetNewRoute = AppFleetNewRouteImport.update({
   path: '/fleet/new',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDriversNewRoute = AppDriversNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AppDriversRoute,
+} as any)
 const AppCustomersNewRoute = AppCustomersNewRouteImport.update({
   id: '/customers/new',
   path: '/customers/new',
@@ -233,6 +240,11 @@ const AppFleetIdEditRoute = AppFleetIdEditRouteImport.update({
   path: '/fleet/$id/edit',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDriversIdEditRoute = AppDriversIdEditRouteImport.update({
+  id: '/$id/edit',
+  path: '/$id/edit',
+  getParentRoute: () => AppDriversRoute,
+} as any)
 const AppCustomersIdEditRoute = AppCustomersIdEditRouteImport.update({
   id: '/customers/$id/edit',
   path: '/customers/$id/edit',
@@ -255,6 +267,7 @@ export interface FileRoutesByFullPath {
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
   '/customers/new': typeof AppCustomersNewRoute
+  '/drivers/new': typeof AppDriversNewRoute
   '/fleet/new': typeof AppFleetNewRoute
   '/profile/change-password': typeof AppProfileChangePasswordRoute
   '/settings/company': typeof AppSettingsCompanyRoute
@@ -270,6 +283,7 @@ export interface FileRoutesByFullPath {
   '/vendors/': typeof AppVendorsIndexRoute
   '/work-orders/': typeof AppWorkOrdersIndexRoute
   '/customers/$id/edit': typeof AppCustomersIdEditRoute
+  '/drivers/$id/edit': typeof AppDriversIdEditRoute
   '/fleet/$id/edit': typeof AppFleetIdEditRoute
   '/vendors/$id/edit': typeof AppVendorsIdEditRoute
   '/work-orders/$id/edit': typeof AppWorkOrdersIdEditRoute
@@ -293,6 +307,7 @@ export interface FileRoutesByTo {
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
   '/customers/new': typeof AppCustomersNewRoute
+  '/drivers/new': typeof AppDriversNewRoute
   '/fleet/new': typeof AppFleetNewRoute
   '/profile/change-password': typeof AppProfileChangePasswordRoute
   '/settings/company': typeof AppSettingsCompanyRoute
@@ -308,6 +323,7 @@ export interface FileRoutesByTo {
   '/vendors': typeof AppVendorsIndexRoute
   '/work-orders': typeof AppWorkOrdersIndexRoute
   '/customers/$id/edit': typeof AppCustomersIdEditRoute
+  '/drivers/$id/edit': typeof AppDriversIdEditRoute
   '/fleet/$id/edit': typeof AppFleetIdEditRoute
   '/vendors/$id/edit': typeof AppVendorsIdEditRoute
   '/work-orders/$id/edit': typeof AppWorkOrdersIdEditRoute
@@ -334,6 +350,7 @@ export interface FileRoutesById {
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
   '/_app/customers/new': typeof AppCustomersNewRoute
+  '/_app/drivers/new': typeof AppDriversNewRoute
   '/_app/fleet/new': typeof AppFleetNewRoute
   '/_app/profile/change-password': typeof AppProfileChangePasswordRoute
   '/_app/settings/company': typeof AppSettingsCompanyRoute
@@ -349,6 +366,7 @@ export interface FileRoutesById {
   '/_app/vendors/': typeof AppVendorsIndexRoute
   '/_app/work-orders/': typeof AppWorkOrdersIndexRoute
   '/_app/customers/$id/edit': typeof AppCustomersIdEditRoute
+  '/_app/drivers/$id/edit': typeof AppDriversIdEditRoute
   '/_app/fleet/$id/edit': typeof AppFleetIdEditRoute
   '/_app/vendors/$id/edit': typeof AppVendorsIdEditRoute
   '/_app/work-orders/$id/edit': typeof AppWorkOrdersIdEditRoute
@@ -375,6 +393,7 @@ export interface FileRouteTypes {
     | '/auth/forgot'
     | '/auth/reset'
     | '/customers/new'
+    | '/drivers/new'
     | '/fleet/new'
     | '/profile/change-password'
     | '/settings/company'
@@ -390,6 +409,7 @@ export interface FileRouteTypes {
     | '/vendors/'
     | '/work-orders/'
     | '/customers/$id/edit'
+    | '/drivers/$id/edit'
     | '/fleet/$id/edit'
     | '/vendors/$id/edit'
     | '/work-orders/$id/edit'
@@ -413,6 +433,7 @@ export interface FileRouteTypes {
     | '/auth/forgot'
     | '/auth/reset'
     | '/customers/new'
+    | '/drivers/new'
     | '/fleet/new'
     | '/profile/change-password'
     | '/settings/company'
@@ -428,6 +449,7 @@ export interface FileRouteTypes {
     | '/vendors'
     | '/work-orders'
     | '/customers/$id/edit'
+    | '/drivers/$id/edit'
     | '/fleet/$id/edit'
     | '/vendors/$id/edit'
     | '/work-orders/$id/edit'
@@ -453,6 +475,7 @@ export interface FileRouteTypes {
     | '/auth/forgot'
     | '/auth/reset'
     | '/_app/customers/new'
+    | '/_app/drivers/new'
     | '/_app/fleet/new'
     | '/_app/profile/change-password'
     | '/_app/settings/company'
@@ -468,6 +491,7 @@ export interface FileRouteTypes {
     | '/_app/vendors/'
     | '/_app/work-orders/'
     | '/_app/customers/$id/edit'
+    | '/_app/drivers/$id/edit'
     | '/_app/fleet/$id/edit'
     | '/_app/vendors/$id/edit'
     | '/_app/work-orders/$id/edit'
@@ -688,6 +712,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFleetNewRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/drivers/new': {
+      id: '/_app/drivers/new'
+      path: '/new'
+      fullPath: '/drivers/new'
+      preLoaderRoute: typeof AppDriversNewRouteImport
+      parentRoute: typeof AppDriversRoute
+    }
     '/_app/customers/new': {
       id: '/_app/customers/new'
       path: '/customers/new'
@@ -744,6 +775,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFleetIdEditRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/drivers/$id/edit': {
+      id: '/_app/drivers/$id/edit'
+      path: '/$id/edit'
+      fullPath: '/drivers/$id/edit'
+      preLoaderRoute: typeof AppDriversIdEditRouteImport
+      parentRoute: typeof AppDriversRoute
+    }
     '/_app/customers/$id/edit': {
       id: '/_app/customers/$id/edit'
       path: '/customers/$id/edit'
@@ -755,11 +793,15 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppDriversRouteChildren {
+  AppDriversNewRoute: typeof AppDriversNewRoute
   AppDriversIndexRoute: typeof AppDriversIndexRoute
+  AppDriversIdEditRoute: typeof AppDriversIdEditRoute
 }
 
 const AppDriversRouteChildren: AppDriversRouteChildren = {
+  AppDriversNewRoute: AppDriversNewRoute,
   AppDriversIndexRoute: AppDriversIndexRoute,
+  AppDriversIdEditRoute: AppDriversIdEditRoute,
 }
 
 const AppDriversRouteWithChildren = AppDriversRoute._addFileChildren(

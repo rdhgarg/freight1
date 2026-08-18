@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_app/drivers/")({
       { name: "description", content: "Driver master with licenses, availability and work-order assignment history." },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>) => ({ status: typeof s.status === "string" ? s.status : undefined }),
+  validateSearch: (s: Record<string, unknown>): { status?: string } => (typeof s.status === "string" ? { status: s.status } : {}),
   component: DriversList,
 });
 
