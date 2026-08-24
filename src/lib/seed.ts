@@ -114,7 +114,11 @@ export const seedWorkOrders: WorkOrder[] = [
       { id: "we2", date: d(-26), category: "Toll", amount: 320, vatPct: 5, status: "Approved", by: "Rashid Khan" },
       { id: "we3", date: d(-25), category: "Fuel", amount: 450, vatPct: 5, vendorId: "s2", vendor: "FuelMart UAE", notes: "Diesel top-up", status: "Approved", by: "Omar Bin Sulayem" },
     ],
-    invoice: { invoiceNo: "INV-2026-0001", date: d(-14), dueDate: d(16), subtotal: 34000, vatPct: 5, vatAmount: 1700, total: 35700, status: "Paid", generatedBy: "Layla Hassan" },
+    invoice: {
+      invoiceNo: "INV-2026-0001", date: d(-14), dueDate: d(16), subtotal: 34000, vatPct: 5, vatAmount: 1700, total: 35700,
+      status: "Paid", generatedBy: "Layla Hassan", issuedAt: d(-14), issuedBy: "Layla Hassan",
+      lines: [{ id: "il1", description: "Freight — Electronics, 40ft HC · Jebel Ali → Al Quoz", qty: 4, unit: "Container", rate: 8500, discount: 0, vatPct: 5 }],
+    },
     invoiceNo: "INV-2026-0001", invoiceGeneratedAt: d(-14),
     payments: [{ id: "wp1", date: d(-2), amount: 35700, mode: "Bank Transfer", reference: "NEFT-88123", receiptNo: "RCP-0001", by: "Layla Hassan" }],
     activityLog: [
@@ -292,7 +296,12 @@ export const seedWorkOrders: WorkOrder[] = [
       { id: "we11", date: d(-21), category: "Toll", amount: 410, vatPct: 5, status: "Approved", by: "Bilal Ahmed" },
       { id: "we12", date: d(-20), category: "Miscellaneous", amount: 300, vatPct: 0, notes: "Escort permit", status: "Pending", by: "Rashid Khan" },
     ],
-    invoice: { invoiceNo: "INV-2026-0002", date: d(-9), dueDate: d(21), subtotal: 41600, vatPct: 5, vatAmount: 2080, total: 43680, status: "Partial", generatedBy: "Layla Hassan" },
+    invoice: {
+      invoiceNo: "INV-2026-0002", date: d(-9), dueDate: d(21), subtotal: 41600, vatPct: 5, vatAmount: 2080, total: 43680,
+      status: "Partially Paid", generatedBy: "Layla Hassan", issuedAt: d(-9), issuedBy: "Layla Hassan",
+      lines: [{ id: "il2", description: "Freight — Auto Parts, 20ft GP · Khalifa Port → Mussafah", qty: 2, unit: "Container", rate: 6200, discount: 0, vatPct: 5 },
+        { id: "il3", description: "Port handling & documentation", qty: 1, unit: "Job", rate: 29200, discount: 0, vatPct: 5 }],
+    },
     invoiceNo: "INV-2026-0002", invoiceGeneratedAt: d(-9),
     payments: [{ id: "wp2", date: d(-4), amount: 20000, mode: "Cheque", reference: "CHQ-556781", receiptNo: "RCP-0002", by: "Layla Hassan" }],
     activityLog: [
