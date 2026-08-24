@@ -331,18 +331,44 @@ export interface WOExpenseItem {
 }
 
 // ---- Invoice snapshot on the WO ----
-export type WOInvoiceStatus = "Draft" | "Sent" | "Partial" | "Paid" | "Overdue";
+// "Sent"/"Partial" kept for legacy persisted records; new code uses Issued/Partially Paid.
+export type WOInvoiceStatus =
+  | "Draft"
+  | "Issued"
+  | "Partially Paid"
+  | "Paid"
+  | "Overdue"
+  | "Cancelled"
+  | "Sent"
+  | "Partial";
+
+export interface InvoiceLineItem {
+  id: string;
+  description: string;
+  qty: number;
+  unit: string;
+  rate: number;
+  discount: number; // absolute AED amount
+  vatPct: number;
+}
+
 export interface WOInvoice {
   invoiceNo: string;
   date: string;
   dueDate: string;
-  subtotal: number;
+  lines?: InvoiceLineItem[];
+  subtotal: number; // total before VAT (after discounts)
+  discount?: number; // total discount across lines
   vatPct: number;
   vatAmount: number;
-  total: number;
+  total: number; // total including VAT
   status: WOInvoiceStatus;
   notes?: string;
   generatedBy?: string;
+  issuedAt?: string;
+  issuedBy?: string;
+  cancelledAt?: string;
+  cancelledBy?: string;
 }
 
 // ---- Payments ----
