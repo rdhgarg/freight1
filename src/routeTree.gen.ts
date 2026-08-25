@@ -35,6 +35,7 @@ import { Route as AppSettingsUsersRouteImport } from './routes/_app.settings.use
 import { Route as AppSettingsRolesRouteImport } from './routes/_app.settings.roles'
 import { Route as AppSettingsCompanyRouteImport } from './routes/_app.settings.company'
 import { Route as AppProfileChangePasswordRouteImport } from './routes/_app.profile.change-password'
+import { Route as AppInvoicesIdRouteImport } from './routes/_app.invoices.$id'
 import { Route as AppFleetNewRouteImport } from './routes/_app.fleet.new'
 import { Route as AppDriversNewRouteImport } from './routes/_app.drivers.new'
 import { Route as AppCustomersNewRouteImport } from './routes/_app.customers.new'
@@ -179,6 +180,11 @@ const AppProfileChangePasswordRoute =
     path: '/profile/change-password',
     getParentRoute: () => AppRoute,
   } as any)
+const AppInvoicesIdRoute = AppInvoicesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppInvoicesRoute,
+} as any)
 const AppFleetNewRoute = AppFleetNewRouteImport.update({
   id: '/fleet/new',
   path: '/fleet/new',
@@ -250,7 +256,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
   '/expenses': typeof AppExpensesRoute
-  '/invoices': typeof AppInvoicesRoute
+  '/invoices': typeof AppInvoicesRouteWithChildren
   '/journal': typeof AppJournalRoute
   '/ledgers': typeof AppLedgersRoute
   '/outstanding': typeof AppOutstandingRoute
@@ -261,6 +267,7 @@ export interface FileRoutesByFullPath {
   '/customers/new': typeof AppCustomersNewRoute
   '/drivers/new': typeof AppDriversNewRoute
   '/fleet/new': typeof AppFleetNewRoute
+  '/invoices/$id': typeof AppInvoicesIdRoute
   '/profile/change-password': typeof AppProfileChangePasswordRoute
   '/settings/company': typeof AppSettingsCompanyRoute
   '/settings/roles': typeof AppSettingsRolesRoute
@@ -290,7 +297,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
   '/expenses': typeof AppExpensesRoute
-  '/invoices': typeof AppInvoicesRoute
+  '/invoices': typeof AppInvoicesRouteWithChildren
   '/journal': typeof AppJournalRoute
   '/ledgers': typeof AppLedgersRoute
   '/outstanding': typeof AppOutstandingRoute
@@ -301,6 +308,7 @@ export interface FileRoutesByTo {
   '/customers/new': typeof AppCustomersNewRoute
   '/drivers/new': typeof AppDriversNewRoute
   '/fleet/new': typeof AppFleetNewRoute
+  '/invoices/$id': typeof AppInvoicesIdRoute
   '/profile/change-password': typeof AppProfileChangePasswordRoute
   '/settings/company': typeof AppSettingsCompanyRoute
   '/settings/roles': typeof AppSettingsRolesRoute
@@ -332,7 +340,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/expenses': typeof AppExpensesRoute
-  '/_app/invoices': typeof AppInvoicesRoute
+  '/_app/invoices': typeof AppInvoicesRouteWithChildren
   '/_app/journal': typeof AppJournalRoute
   '/_app/ledgers': typeof AppLedgersRoute
   '/_app/outstanding': typeof AppOutstandingRoute
@@ -343,6 +351,7 @@ export interface FileRoutesById {
   '/_app/customers/new': typeof AppCustomersNewRoute
   '/_app/drivers/new': typeof AppDriversNewRoute
   '/_app/fleet/new': typeof AppFleetNewRoute
+  '/_app/invoices/$id': typeof AppInvoicesIdRoute
   '/_app/profile/change-password': typeof AppProfileChangePasswordRoute
   '/_app/settings/company': typeof AppSettingsCompanyRoute
   '/_app/settings/roles': typeof AppSettingsRolesRoute
@@ -385,6 +394,7 @@ export interface FileRouteTypes {
     | '/customers/new'
     | '/drivers/new'
     | '/fleet/new'
+    | '/invoices/$id'
     | '/profile/change-password'
     | '/settings/company'
     | '/settings/roles'
@@ -425,6 +435,7 @@ export interface FileRouteTypes {
     | '/customers/new'
     | '/drivers/new'
     | '/fleet/new'
+    | '/invoices/$id'
     | '/profile/change-password'
     | '/settings/company'
     | '/settings/roles'
@@ -466,6 +477,7 @@ export interface FileRouteTypes {
     | '/_app/customers/new'
     | '/_app/drivers/new'
     | '/_app/fleet/new'
+    | '/_app/invoices/$id'
     | '/_app/profile/change-password'
     | '/_app/settings/company'
     | '/_app/settings/roles'
@@ -681,6 +693,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfileChangePasswordRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/invoices/$id': {
+      id: '/_app/invoices/$id'
+      path: '/$id'
+      fullPath: '/invoices/$id'
+      preLoaderRoute: typeof AppInvoicesIdRouteImport
+      parentRoute: typeof AppInvoicesRoute
+    }
     '/_app/fleet/new': {
       id: '/_app/fleet/new'
       path: '/fleet/new'
@@ -775,10 +794,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppInvoicesRouteChildren {
+  AppInvoicesIdRoute: typeof AppInvoicesIdRoute
+}
+
+const AppInvoicesRouteChildren: AppInvoicesRouteChildren = {
+  AppInvoicesIdRoute: AppInvoicesIdRoute,
+}
+
+const AppInvoicesRouteWithChildren = AppInvoicesRoute._addFileChildren(
+  AppInvoicesRouteChildren,
+)
+
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppExpensesRoute: typeof AppExpensesRoute
-  AppInvoicesRoute: typeof AppInvoicesRoute
+  AppInvoicesRoute: typeof AppInvoicesRouteWithChildren
   AppJournalRoute: typeof AppJournalRoute
   AppLedgersRoute: typeof AppLedgersRoute
   AppOutstandingRoute: typeof AppOutstandingRoute
@@ -815,7 +846,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppExpensesRoute: AppExpensesRoute,
-  AppInvoicesRoute: AppInvoicesRoute,
+  AppInvoicesRoute: AppInvoicesRouteWithChildren,
   AppJournalRoute: AppJournalRoute,
   AppLedgersRoute: AppLedgersRoute,
   AppOutstandingRoute: AppOutstandingRoute,

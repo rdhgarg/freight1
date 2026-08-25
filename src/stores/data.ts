@@ -4,10 +4,11 @@ import type {
   Customer, Driver, Vendor, Fleet, WorkOrder, Shipment, Expense, Purchase, Invoice, Receipt, JournalEntry,
   ShipmentStage, ShipmentTimelineEntry, WorkOrderStatus, WOActivityLog, WOApprovalEntry,
   WOPayment, WOExpenseItem, WOTimelineEntry, WODoc, WOOpsTaskKey, WOOpsTask, Department,
-  DriverStatus, WOInvoice,
+  DriverStatus, WOInvoice, InvoiceLineItem,
 } from "@/lib/types";
 import { WO_OPS_TASKS } from "@/lib/types";
 import { normalizeStatus, stageIndex } from "@/lib/wo";
+import { nextInvoiceNo, invoiceDisplayStatus, invoiceTotals, validateInvoiceForIssue } from "@/lib/invoice";
 import {
   seedCustomers, seedDrivers, seedVendors, seedFleet, seedWorkOrders,
   seedShipments, seedExpenses, seedPurchases, seedInvoices, seedReceipts, seedJournal,
@@ -73,6 +74,15 @@ interface DataState {
   addWOPayment: (id: string, entry: Omit<WOPayment, "id">, actor?: Actor) => void;
   deleteWOPayment: (id: string, paymentId: string, actor: Actor) => void;
   addWOTimelineEvent: (id: string, entry: Omit<WOTimelineEntry, "id">) => void;
+  issueWOInvoice: (id: string, actor: Actor) => string | null;
+  updateWOInvoice: (
+    id: string,
+    patch: { date?: string; dueDate?: string; notes?: string; lines?: InvoiceLineItem[] },
+    actor: Actor,
+  ) => void;
+  cancelWOInvoice: (id: string, actor: Actor) => void;
+  deleteWOInvoice: (id: string, actor: Actor) => void;
+  duplicateWOInvoice: (id: string, actor: Actor) => void;
 
   upsertShipment: (s: Shipment) => void;
   deleteShipment: (id: string) => void;
@@ -156,15 +166,6 @@ const logged = (
 };
 
 const emptyTasks = (): WOOpsTask[] => WO_OPS_TASKS.map((t) => ({ key: t.key, completed: false }));
-
-const invoiceStatusFor = (inv: WOInvoice, paid: number): WOInvoice["status"] => {
-  if (paid >= inv.total) return "Paid";
-  if (paid > 0) return "Partial";
-  return new Date(inv.dueDate).getTime() < Date.now() ? "Overdue" : "Sent";
-};
-
-const nextInvoiceNo = (wos: WorkOrder[]) =>
-  `INV-${new Date().getFullYear()}-${String(wos.filter((w) => w.invoice || w.invoiceNo).length + 1).padStart(4, "0")}`;
 
 const nextReceiptNo = (wos: WorkOrder[]) =>
   `RCP-${String(wos.reduce((s, w) => s + (w.payments?.length ?? 0), 0) + 1).padStart(4, "0")}`;
@@ -396,38 +397,114 @@ export const useData = create<DataState>()(
             );
           }),
 
+        /** Create (or recreate) an editable invoice DRAFT. WO stage advances only on issue. */
         generateWOInvoice: (id, opts, actor) => {
           const invoiceNo = nextInvoiceNo(get().workOrders);
           patchWO(id, (w) => {
-            const subtotal = w.containers * w.rate;
-            const vatAmount = (subtotal * opts.vatPct) / 100;
-            const date = now();
+            const line: InvoiceLineItem = {
+              id: uid("il_"),
+              description: `Freight — ${w.commodity ?? "General cargo"}${w.containerType ? `, ${w.containerType}` : ""} · ${w.pickup} → ${w.delivery}`,
+              qty: w.containers || 1,
+              unit: "Container",
+              rate: w.rate,
+              discount: 0,
+              vatPct: opts.vatPct,
+            };
+            const t = invoiceTotals([line]);
             const invoice: WOInvoice = {
               invoiceNo: w.invoice?.invoiceNo ?? invoiceNo,
-              date,
+              date: now(),
               dueDate: new Date(Date.now() + opts.dueDays * 86400000).toISOString(),
-              subtotal,
+              lines: [line],
+              subtotal: t.subtotal,
+              discount: t.discount,
               vatPct: opts.vatPct,
-              vatAmount,
-              total: subtotal + vatAmount,
-              status: "Sent",
+              vatAmount: t.vatAmount,
+              total: t.total,
+              status: "Draft",
               notes: opts.notes,
               generatedBy: actor.by,
             };
-            const base: WorkOrder = {
-              ...w,
-              invoice,
-              invoiceNo: invoice.invoiceNo,
-              invoiceGeneratedAt: date,
-              taxPct: opts.vatPct,
-              status: "Invoice Generated",
-            };
-            return logged(base, actor, "Invoice generated", invoice.invoiceNo, "Invoice Generated");
+            const base: WorkOrder = { ...w, invoice, invoiceNo: invoice.invoiceNo, taxPct: opts.vatPct };
+            return logged(base, actor, "Invoice draft created", invoice.invoiceNo);
           });
         },
 
         generateInvoiceForWO: (id, by) =>
           get().generateWOInvoice(id, { vatPct: get().workOrders.find((w) => w.id === id)?.taxPct ?? 5, dueDays: 30 }, { by, department: "Accounts" }),
+
+        issueWOInvoice: (id, actor) => {
+          const wo = get().workOrders.find((w) => w.id === id);
+          if (!wo) return "Work order not found.";
+          const customerExists = get().customers.some((c) => c.id === wo.customerId);
+          const err = validateInvoiceForIssue(wo, customerExists);
+          if (err) return err;
+          patchWO(id, (w) => {
+            const at = now();
+            const invoice: WOInvoice = { ...w.invoice!, status: "Issued", issuedAt: at, issuedBy: actor.by };
+            const status: WorkOrderStatus =
+              stageIndex(w.status) < stageIndex("Invoice Generated") ? "Invoice Generated" : normalizeStatus(w.status);
+            const base: WorkOrder = { ...w, invoice, status, invoiceGeneratedAt: at };
+            return logged(base, actor, "Invoice issued", invoice.invoiceNo, "Invoice Generated");
+          });
+          return null;
+        },
+
+        updateWOInvoice: (id, patch, actor) =>
+          patchWO(id, (w) => {
+            if (!w.invoice || w.invoice.status !== "Draft") return w;
+            const lines = patch.lines ?? w.invoice.lines ?? [];
+            const t = invoiceTotals(lines);
+            const invoice: WOInvoice = {
+              ...w.invoice,
+              date: patch.date ?? w.invoice.date,
+              dueDate: patch.dueDate ?? w.invoice.dueDate,
+              notes: patch.notes ?? w.invoice.notes,
+              lines,
+              subtotal: t.subtotal,
+              discount: t.discount,
+              vatAmount: t.vatAmount,
+              total: t.total,
+            };
+            return logged({ ...w, invoice }, actor, "Invoice draft updated", invoice.invoiceNo);
+          }),
+
+        cancelWOInvoice: (id, actor) =>
+          patchWO(id, (w) => {
+            if (!w.invoice || w.invoice.status === "Draft" || w.invoice.status === "Cancelled") return w;
+            const invoice: WOInvoice = { ...w.invoice, status: "Cancelled", cancelledAt: now(), cancelledBy: actor.by };
+            return logged({ ...w, invoice }, actor, "Invoice cancelled", invoice.invoiceNo);
+          }),
+
+        deleteWOInvoice: (id, actor) =>
+          patchWO(id, (w) => {
+            if (!w.invoice || w.invoice.status !== "Draft") return w;
+            return logged(
+              { ...w, invoice: undefined, invoiceNo: undefined, invoiceGeneratedAt: undefined },
+              actor,
+              "Invoice draft deleted",
+              w.invoice.invoiceNo,
+            );
+          }),
+
+        duplicateWOInvoice: (id, actor) => {
+          const invoiceNo = nextInvoiceNo(get().workOrders);
+          patchWO(id, (w) => {
+            if (!w.invoice || w.invoice.status !== "Cancelled") return w;
+            const invoice: WOInvoice = {
+              ...w.invoice,
+              invoiceNo,
+              status: "Draft",
+              date: now(),
+              issuedAt: undefined,
+              issuedBy: undefined,
+              cancelledAt: undefined,
+              cancelledBy: undefined,
+              generatedBy: actor.by,
+            };
+            return logged({ ...w, invoice, invoiceNo }, actor, "Invoice draft duplicated", invoiceNo);
+          });
+        },
 
         addWOPayment: (id, entry, actor) => {
           const receiptNo = nextReceiptNo(get().workOrders);
@@ -435,12 +512,40 @@ export const useData = create<DataState>()(
             const item: WOPayment = { id: uid("wp_"), receiptNo, ...entry };
             const payments = [...(w.payments ?? []), item];
             const paid = payments.reduce((s, p) => s + p.amount, 0);
-            const total = w.invoice?.total ?? w.containers * w.rate * (1 + (w.taxPct ?? 0) / 100);
-            const status: WorkOrderStatus = paid >= total ? "Payment Received" : "Payment Pending";
-            const invoice = w.invoice ? { ...w.invoice, status: invoiceStatusFor(w.invoice, paid) } : undefined;
+            const inv = w.invoice && w.invoice.status !== "Cancelled" ? w.invoice : undefined;
+            const fallbackTotal = w.containers * w.rate * (1 + (w.taxPct ?? 0) / 100);
+            const total = inv?.total ?? fallbackTotal;
+            const prevPaid = (w.payments ?? []).reduce((s, p) => s + p.amount, 0);
+            const cleared = inv ? paid >= inv.total && inv.total > 0 : paid >= total;
+            const wasCleared = inv ? prevPaid >= inv.total && inv.total > 0 : false;
+            const status: WorkOrderStatus = cleared
+              ? "Payment Received"
+              : inv && inv.status !== "Draft" && stageIndex(w.status) >= stageIndex("Invoice Generated")
+                ? "Payment Pending"
+                : normalizeStatus(w.status);
+            const invoice =
+              inv && inv.status !== "Draft" ? { ...inv, status: invoiceDisplayStatus(inv, paid) } : w.invoice;
             const a: Actor = actor ?? { by: entry.by ?? "System", department: "Accounts" };
-            const base: WorkOrder = { ...w, payments, invoice, status };
-            return logged(base, a, "Payment received", `AED ${entry.amount} · ${entry.mode}`, status);
+            let base: WorkOrder = { ...w, payments, invoice, status };
+            base = logged(
+              base,
+              a,
+              "Payment received",
+              `AED ${entry.amount} · ${entry.mode} · ${receiptNo}`,
+              cleared ? "Payment Received" : undefined,
+            );
+            if (cleared && !wasCleared) {
+              base = appendTimeline(base, {
+                id: uid("tl_"), stage: "Outstanding Closed", at: now(), by: a.by,
+                note: "All dues settled — outstanding AED 0", department: a.department,
+              });
+              base = appendActivity(base, {
+                id: uid("a_"), at: now(), by: a.by,
+                action: "Payment Completed — Financially Cleared",
+                note: `${receiptNo} · balance AED 0`, department: a.department,
+              });
+            }
+            return base;
           });
         },
 
@@ -448,8 +553,15 @@ export const useData = create<DataState>()(
           patchWO(id, (w) => {
             const payments = (w.payments ?? []).filter((p) => p.id !== paymentId);
             const paid = payments.reduce((s, p) => s + p.amount, 0);
-            const invoice = w.invoice ? { ...w.invoice, status: invoiceStatusFor(w.invoice, paid) } : undefined;
-            return logged({ ...w, payments, invoice }, actor, "Payment deleted");
+            const inv = w.invoice && w.invoice.status !== "Cancelled" ? w.invoice : undefined;
+            const invoice = inv && inv.status !== "Draft" ? { ...inv, status: invoiceDisplayStatus(inv, paid) } : w.invoice;
+            const status: WorkOrderStatus =
+              inv && stageIndex(w.status) >= stageIndex("Payment Pending")
+                ? paid > 0
+                  ? "Payment Pending"
+                  : "Invoice Generated"
+                : w.status;
+            return logged({ ...w, payments, invoice, status }, actor, "Payment deleted");
           }),
 
         addWOTimelineEvent: (id, entry) =>
@@ -515,8 +627,8 @@ export const useData = create<DataState>()(
     },
     {
       name: "hams-data",
-      version: 4,
-      // Phase 3 reshapes the work-order record; start from the current seed set.
+      version: 5,
+      // v5: invoice line items + ledger integration; start from the current seed set.
       migrate: (persisted: unknown) => {
         const s = (persisted ?? {}) as Record<string, unknown>;
         return {
