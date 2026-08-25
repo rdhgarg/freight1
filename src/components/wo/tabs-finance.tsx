@@ -198,7 +198,7 @@ export function ExpensesTab({ wo }: { wo: WorkOrder }) {
 
 export function InvoiceTab({ wo }: { wo: WorkOrder }) {
   const actor = useActor();
-  const { generateWOInvoice, customers } = useData();
+  const { generateWOInvoice, issueWOInvoice, customers } = useData();
   const [vatPct, setVatPct] = useState(wo.taxPct ?? 5);
   const [dueDays, setDueDays] = useState(30);
   const m = woMoney(wo);
@@ -250,13 +250,15 @@ export function InvoiceTab({ wo }: { wo: WorkOrder }) {
           <Row k="Grand total" v={<span className="font-bold text-primary">{aed(subtotal + vat)}</span>} />
         </div>
         <div className="flex justify-end">
-          <Button size="sm" onClick={() => { generateWOInvoice(wo.id, { vatPct, dueDays }, actor); toast.success("Invoice generated"); }}>
-            <FileText className="h-4 w-4 mr-1.5" /> Generate invoice
+          <Button size="sm" onClick={() => { generateWOInvoice(wo.id, { vatPct, dueDays }, actor); toast.success("Invoice draft created — review and issue it from the invoice workspace"); }}>
+            <FileText className="h-4 w-4 mr-1.5" /> Create draft invoice
           </Button>
         </div>
       </div>
     );
   }
+
+  const displayStatus = invoiceDisplayStatus(inv, m.paid);
 
   return (
     <div className="card-elevated p-4 space-y-4">
@@ -264,11 +266,30 @@ export function InvoiceTab({ wo }: { wo: WorkOrder }) {
         <div>
           <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Tax invoice</div>
           <div className="text-lg font-bold">{inv.invoiceNo}</div>
-          <div className="text-xs text-muted-foreground">Issued {fmtDate(inv.date)} · Due {fmtDate(inv.dueDate)} · By {inv.generatedBy ?? "—"}</div>
+          <div className="text-xs text-muted-foreground">
+            {inv.status === "Draft"
+              ? `Draft · Created ${fmtDate(inv.date)} · By ${inv.generatedBy ?? "—"}`
+              : `Issued ${fmtDate(inv.issuedAt ?? inv.date)} · Due ${fmtDate(inv.dueDate)} · By ${inv.issuedBy ?? inv.generatedBy ?? "—"}`}
+          </div>
         </div>
         <div className="flex items-center gap-2">
-          <StatusBadge status={inv.status} />
-          <Button size="sm" variant="outline" onClick={print}><Printer className="h-4 w-4 mr-1.5" /> Print / download</Button>
+          <StatusBadge status={displayStatus} />
+          {inv.status === "Draft" && (
+            <Button
+              size="sm"
+              onClick={() => {
+                const err = issueWOInvoice(wo.id, actor);
+                if (err) toast.error(err);
+                else toast.success(`${inv.invoiceNo} issued`);
+              }}
+            >
+              <CheckCircle2 className="h-4 w-4 mr-1.5" /> Issue invoice
+            </Button>
+          )}
+          <Link to="/invoices/$id" params={{ id: wo.id }}>
+            <Button size="sm" variant="outline"><FileText className="h-4 w-4 mr-1.5" /> {inv.status === "Draft" ? "Edit draft" : "Open invoice"}</Button>
+          </Link>
+          <Button size="sm" variant="outline" onClick={print}><Printer className="h-4 w-4 mr-1.5" /> Print</Button>
         </div>
       </div>
 
@@ -278,8 +299,13 @@ export function InvoiceTab({ wo }: { wo: WorkOrder }) {
         <Row k="Subtotal (AED)" v={aed(inv.subtotal)} />
         <Row k={`VAT (${inv.vatPct}%)`} v={aed(inv.vatAmount)} />
         <Row k="Grand total (AED)" v={<span className="font-bold text-primary">{aed(inv.total)}</span>} />
-        <Row k="Received" v={aed(m.paid)} />
-        <Row k="Outstanding" v={<span className={m.balance > 0 ? "font-semibold text-destructive" : "font-semibold text-success"}>{aed(m.balance)}</span>} />
+        {inv.status !== "Draft" && inv.status !== "Cancelled" && (
+          <>
+            <Row k="Received" v={aed(m.paid)} />
+            <Row k="Outstanding" v={<span className={m.balance > 0 ? "font-semibold text-destructive" : "font-semibold text-success"}>{aed(m.balance)}</span>} />
+          </>
+        )}
+        {inv.status === "Cancelled" && <Row k="Cancelled" v={`${fmtDateTime(inv.cancelledAt ?? "")} · By ${inv.cancelledBy ?? "—"}`} />}
       </div>
     </div>
   );

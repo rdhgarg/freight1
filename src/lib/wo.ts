@@ -45,10 +45,11 @@ export interface WOMoney {
 }
 
 export const woMoney = (wo: WorkOrder): WOMoney => {
-  const subtotal = wo.invoice?.subtotal ?? wo.containers * wo.rate;
-  const vatPct = wo.invoice?.vatPct ?? wo.taxPct ?? 5;
-  const vat = wo.invoice?.vatAmount ?? (subtotal * vatPct) / 100;
-  const total = wo.invoice?.total ?? subtotal + vat;
+  const inv = wo.invoice && wo.invoice.status !== "Cancelled" ? wo.invoice : undefined;
+  const subtotal = inv?.subtotal ?? wo.containers * wo.rate;
+  const vatPct = inv?.vatPct ?? wo.taxPct ?? 5;
+  const vat = inv?.vatAmount ?? (subtotal * vatPct) / 100;
+  const total = inv?.total ?? subtotal + vat;
   const paid = (wo.payments ?? []).reduce((s, p) => s + p.amount, 0);
   const items = wo.woExpenses ?? [];
   const expenses = items.reduce((s, e) => s + e.amount, 0);
