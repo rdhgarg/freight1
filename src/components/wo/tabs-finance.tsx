@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Plus, Receipt, Trash2, Wallet, FileText, CheckCircle2, XCircle, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { useData } from "@/stores/data";
 import { useActor } from "@/components/wo/use-actor";
 import { aed, fmtDate, fmtDateTime } from "@/lib/format";
 import { fileToDataUrl, woMoney } from "@/lib/wo";
+import { invoiceDisplayStatus } from "@/lib/invoice";
 import { WO_EXPENSE_CATEGORIES, PAYMENT_MODES } from "@/lib/types";
 import type { PaymentMode, WorkOrder } from "@/lib/types";
 
