@@ -13,7 +13,7 @@ export const vendorSchema = z.object({
   name: z.string().trim().min(2, "Name required").max(150),
   code: z.string().trim().min(1, "Code required").max(20),
   category: z.enum(["Transport", "Customs", "Forwarder", "Port Handling", "Warehouse", "Inspection", "Fuel", "Other"]),
-  gst: z.string().trim().min(5, "GST required").max(20),
+  gst: z.string().trim().min(5, "TRN required").max(20),
   services: z.string().trim().min(2, "Services required").max(300),
   address: z.string().trim().min(4, "Address required").max(500),
   contactName: z.string().trim().min(2).max(100),
@@ -67,7 +67,7 @@ export function VendorFormFields({
             </Select>
           )} />
         </Field>
-        <Field label="GST number" error={errors.gst?.message}><Input className="font-mono" {...register("gst")} /></Field>
+        <Field label="TRN (Tax Registration Number)" error={errors.gst?.message}><Input className="font-mono" {...register("gst")} /></Field>
         <Field label="Contact name" error={errors.contactName?.message}><Input {...register("contactName")} /></Field>
         <Field label="Contact phone" error={errors.contactPhone?.message}><Input {...register("contactPhone")} /></Field>
         <Field label="Contact email" error={errors.contactEmail?.message}><Input type="email" {...register("contactEmail")} /></Field>

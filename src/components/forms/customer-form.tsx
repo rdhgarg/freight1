@@ -12,7 +12,7 @@ import { Controller } from "react-hook-form";
 export const customerSchema = z.object({
   name: z.string().trim().min(2, "Name is required").max(100),
   company: z.string().trim().min(2, "Company is required").max(150),
-  gst: z.string().trim().min(5, "GST number is required").max(20),
+  gst: z.string().trim().min(5, "TRN is required").max(20),
   email: z.string().trim().email("Valid email required").max(255),
   phone: z.string().trim().min(6, "Phone required").max(20),
   address: z.string().trim().min(4, "Address required").max(500),
@@ -57,7 +57,7 @@ export function CustomerFormFields({
         <Field label="Company name" error={errors.company?.message}>
           <Input {...register("company")} />
         </Field>
-        <Field label="GST number" error={errors.gst?.message}>
+        <Field label="TRN (Tax Registration Number)" error={errors.gst?.message}>
           <Input className="font-mono" {...register("gst")} />
         </Field>
         <Field label="Email" error={errors.email?.message}>
